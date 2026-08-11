@@ -9,6 +9,7 @@ import 'features/diary/domain/usecases/get_today_entries.dart';
 import 'features/diary/domain/usecases/calculate_daily_total.dart';
 import 'features/diary/presentation/providers/diary_provider.dart';
 import 'features/diary/presentation/screens/home_screen.dart';
+import 'features/diary/presentation/screens/manual_entry_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -68,14 +69,9 @@ class _RootScreenState extends State<RootScreen> {
       body: _screens[_currentIndex],
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          context.read<DiaryProvider>().addEntry(
-                name: 'Тестовый продукт',
-                calories: 250,
-                protein: 12,
-                fat: 8,
-                carbs: 30,
-                source: FoodEntrySource.manual,
-              );
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const ManualEntryScreen()),
+          );
         },
         child: const Icon(Icons.camera_alt),
       ),
