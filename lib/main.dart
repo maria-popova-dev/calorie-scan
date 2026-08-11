@@ -11,6 +11,7 @@ class CalorieScanApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'CalorieScan',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorSchemeSeed: Colors.green,
         useMaterial3: true,
