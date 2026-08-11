@@ -1,0 +1,19 @@
+{
+  "appTitle": "CalorieScan",
+  "homeTitle": "Сегодня",
+  "diaryTitle": "Дневник",
+  "addProductTitle": "Добавить продукт",
+  "nameLabel": "Название",
+  "caloriesLabel": "Калории (ккал)",
+  "proteinLabel": "Белки (г)",
+  "fatLabel": "Жиры (г)",
+  "carbsLabel": "Углеводы (г)",
+  "saveButton": "Сохранить",
+  "requiredField": "Обязательное поле",
+  "enterNumber": "Введите число",
+  "noEntriesToday": "Пока нет записей за сегодня",
+  "entriesToday": "Записей за сегодня: {count}",
+  "proteinShort": "Б",
+  "fatShort": "Ж",
+  "carbsShort": "У"
+}

@@ -3,13 +3,16 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'features/diary/data/models/food_entry_model.dart';
 import 'features/diary/data/repositories/diary_repository_impl.dart';
-import 'features/diary/domain/entities/food_entry.dart';
 import 'features/diary/domain/usecases/add_food_entry.dart';
 import 'features/diary/domain/usecases/get_today_entries.dart';
 import 'features/diary/domain/usecases/calculate_daily_total.dart';
 import 'features/diary/presentation/providers/diary_provider.dart';
+import 'features/diary/presentation/screens/diary_screen.dart';
 import 'features/diary/presentation/screens/home_screen.dart';
 import 'features/diary/presentation/screens/manual_entry_screen.dart';
+
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'l10n/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,6 +41,8 @@ class CalorieScanApp extends StatelessWidget {
       child: MaterialApp(
         title: 'CalorieScan',
         debugShowCheckedModeBanner: false,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         theme: ThemeData(
           colorSchemeSeed: Colors.green,
           useMaterial3: true,
@@ -95,17 +100,6 @@ class _RootScreenState extends State<RootScreen> {
           ],
         ),
       ),
-    );
-  }
-}
-
-class DiaryScreen extends StatelessWidget {
-  const DiaryScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: Text('Дневник')),
     );
   }
 }

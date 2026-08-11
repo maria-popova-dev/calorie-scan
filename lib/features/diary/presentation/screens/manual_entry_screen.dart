@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../domain/entities/food_entry.dart';
 import '../providers/diary_provider.dart';
 
@@ -50,27 +51,29 @@ class _ManualEntryScreenState extends State<ManualEntryScreen> {
     }
   }
 
-  String? _validateRequired(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return 'Обязательное поле';
-    }
-    return null;
-  }
-
-  String? _validateNumber(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return 'Обязательное поле';
-    }
-    if (double.tryParse(value) == null) {
-      return 'Введите число';
-    }
-    return null;
-  }
-
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    String? validateRequired(String? value) {
+      if (value == null || value.trim().isEmpty) {
+        return l10n.requiredField;
+      }
+      return null;
+    }
+
+    String? validateNumber(String? value) {
+      if (value == null || value.trim().isEmpty) {
+        return l10n.requiredField;
+      }
+      if (double.tryParse(value) == null) {
+        return l10n.enterNumber;
+      }
+      return null;
+    }
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Добавить продукт')),
+      appBar: AppBar(title: Text(l10n.addProductTitle)),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -79,36 +82,36 @@ class _ManualEntryScreenState extends State<ManualEntryScreen> {
             children: [
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Название'),
-                validator: _validateRequired,
+                decoration: InputDecoration(labelText: l10n.nameLabel),
+                validator: validateRequired,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _caloriesController,
-                decoration: const InputDecoration(labelText: 'Калории (ккал)'),
+                decoration: InputDecoration(labelText: l10n.caloriesLabel),
                 keyboardType: TextInputType.number,
-                validator: _validateNumber,
+                validator: validateNumber,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _proteinController,
-                decoration: const InputDecoration(labelText: 'Белки (г)'),
+                decoration: InputDecoration(labelText: l10n.proteinLabel),
                 keyboardType: TextInputType.number,
-                validator: _validateNumber,
+                validator: validateNumber,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _fatController,
-                decoration: const InputDecoration(labelText: 'Жиры (г)'),
+                decoration: InputDecoration(labelText: l10n.fatLabel),
                 keyboardType: TextInputType.number,
-                validator: _validateNumber,
+                validator: validateNumber,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _carbsController,
-                decoration: const InputDecoration(labelText: 'Углеводы (г)'),
+                decoration: InputDecoration(labelText: l10n.carbsLabel),
                 keyboardType: TextInputType.number,
-                validator: _validateNumber,
+                validator: validateNumber,
               ),
               const SizedBox(height: 24),
               FilledButton(
@@ -119,7 +122,7 @@ class _ManualEntryScreenState extends State<ManualEntryScreen> {
                   height: 20,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-                    : const Text('Сохранить'),
+                    : Text(l10n.saveButton),
               ),
             ],
           ),

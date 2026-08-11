@@ -1,0 +1,24 @@
+{
+  "appTitle": "CalorieScan",
+  "homeTitle": "Today",
+  "diaryTitle": "Diary",
+  "addProductTitle": "Add product",
+  "nameLabel": "Name",
+  "caloriesLabel": "Calories (kcal)",
+  "proteinLabel": "Protein (g)",
+  "fatLabel": "Fat (g)",
+  "carbsLabel": "Carbs (g)",
+  "saveButton": "Save",
+  "requiredField": "Required field",
+  "enterNumber": "Enter a number",
+  "noEntriesToday": "No entries for today yet",
+  "entriesToday": "Entries today: {count}",
+  "@entriesToday": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "proteinShort": "P",
+  "fatShort": "F",
+  "carbsShort": "C"
+}
