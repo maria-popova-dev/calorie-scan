@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:provider/provider.dart';
 import 'features/diary/data/models/food_entry_model.dart';
 import 'features/diary/data/repositories/diary_repository_impl.dart';
+import 'features/diary/domain/entities/food_entry.dart';
+import 'features/diary/domain/usecases/add_food_entry.dart';
+import 'features/diary/domain/usecases/get_today_entries.dart';
+import 'features/diary/domain/usecases/calculate_daily_total.dart';
+import 'features/diary/presentation/providers/diary_provider.dart';
+import 'features/diary/presentation/screens/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -9,24 +16,33 @@ void main() async {
   Hive.registerAdapter(FoodEntryModelAdapter());
   final box = await Hive.openBox<FoodEntryModel>('food_entries');
 
-  runApp(CalorieScanApp(diaryRepository: DiaryRepositoryImpl(box)));
+  final repository = DiaryRepositoryImpl(box);
+
+  runApp(CalorieScanApp(repository: repository));
 }
 
 class CalorieScanApp extends StatelessWidget {
-  final DiaryRepositoryImpl diaryRepository;
+  final DiaryRepositoryImpl repository;
 
-  const CalorieScanApp({super.key, required this.diaryRepository});
+  const CalorieScanApp({super.key, required this.repository});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'CalorieScan',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorSchemeSeed: Colors.green,
-        useMaterial3: true,
+    return ChangeNotifierProvider(
+      create: (_) => DiaryProvider(
+        addFoodEntryUseCase: AddFoodEntry(repository),
+        getTodayEntriesUseCase: GetTodayEntries(repository),
+        calculateDailyTotalUseCase: CalculateDailyTotal(),
+      )..loadTodayEntries(),
+      child: MaterialApp(
+        title: 'CalorieScan',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          colorSchemeSeed: Colors.green,
+          useMaterial3: true,
+        ),
+        home: const RootScreen(),
       ),
-      home: const RootScreen(),
     );
   }
 }
@@ -51,7 +67,16 @@ class _RootScreenState extends State<RootScreen> {
     return Scaffold(
       body: _screens[_currentIndex],
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          context.read<DiaryProvider>().addEntry(
+                name: 'Тестовый продукт',
+                calories: 250,
+                protein: 12,
+                fat: 8,
+                carbs: 30,
+                source: FoodEntrySource.manual,
+              );
+        },
         child: const Icon(Icons.camera_alt),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -74,17 +99,6 @@ class _RootScreenState extends State<RootScreen> {
           ],
         ),
       ),
-    );
-  }
-}
-
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: Text('Главная')),
     );
   }
 }
