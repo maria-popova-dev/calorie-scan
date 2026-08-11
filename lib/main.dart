@@ -1,11 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'features/diary/data/models/food_entry_model.dart';
+import 'features/diary/data/repositories/diary_repository_impl.dart';
 
-void main() {
-  runApp(const CalorieScanApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
+  Hive.registerAdapter(FoodEntryModelAdapter());
+  final box = await Hive.openBox<FoodEntryModel>('food_entries');
+
+  runApp(CalorieScanApp(diaryRepository: DiaryRepositoryImpl(box)));
 }
 
 class CalorieScanApp extends StatelessWidget {
-  const CalorieScanApp({super.key});
+  final DiaryRepositoryImpl diaryRepository;
+
+  const CalorieScanApp({super.key, required this.diaryRepository});
 
   @override
   Widget build(BuildContext context) {
@@ -41,9 +51,7 @@ class _RootScreenState extends State<RootScreen> {
     return Scaffold(
       body: _screens[_currentIndex],
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // сюда повесим открытие ScanScreen
-        },
+        onPressed: () {},
         child: const Icon(Icons.camera_alt),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -53,18 +61,14 @@ class _RootScreenState extends State<RootScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             IconButton(
-              icon: Icon(
-                Icons.home,
-                color: _currentIndex == 0 ? Colors.green : Colors.grey,
-              ),
+              icon: Icon(Icons.home,
+                  color: _currentIndex == 0 ? Colors.green : Colors.grey),
               onPressed: () => setState(() => _currentIndex = 0),
             ),
             const SizedBox(width: 40),
             IconButton(
-              icon: Icon(
-                Icons.book,
-                color: _currentIndex == 1 ? Colors.green : Colors.grey,
-              ),
+              icon: Icon(Icons.book,
+                  color: _currentIndex == 1 ? Colors.green : Colors.grey),
               onPressed: () => setState(() => _currentIndex = 1),
             ),
           ],
@@ -74,7 +78,6 @@ class _RootScreenState extends State<RootScreen> {
   }
 }
 
-// Временные заглушки экранов — наполним их содержимым дальше
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
