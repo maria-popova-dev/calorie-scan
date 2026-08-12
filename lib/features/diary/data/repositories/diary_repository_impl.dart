@@ -15,6 +15,12 @@ class DiaryRepositoryImpl implements DiaryRepository {
   }
 
   @override
+  Future<void> updateEntry(FoodEntry entry) async {
+    final model = FoodEntryModel.fromEntity(entry);
+    await box.put(model.id, model);
+  }
+
+  @override
   Future<List<FoodEntry>> getEntriesForDate(DateTime date) async {
     return box.values
         .where((model) => _isSameDay(model.timestamp, date))

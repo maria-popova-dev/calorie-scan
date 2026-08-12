@@ -5,4 +5,5 @@ abstract class DiaryRepository {
   Future<List<FoodEntry>> getEntriesForDate(DateTime date);
   Future<void> deleteEntry(String id);
   Future<List<FoodEntry>> getAllUniqueEntries();
+  Future<void> updateEntry(FoodEntry entry);
 }

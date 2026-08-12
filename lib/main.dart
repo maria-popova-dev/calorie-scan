@@ -17,6 +17,8 @@ import 'l10n/app_localizations.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'features/diary/domain/usecases/get_custom_foods.dart';
 import 'features/diary/domain/usecases/delete_food_entry.dart';
+import 'features/diary/domain/usecases/update_food_entry.dart';
+
 
 void main() async {
   await dotenv.load(fileName: ".env");
@@ -44,6 +46,7 @@ class CalorieScanApp extends StatelessWidget {
         calculateDailyTotalUseCase: CalculateDailyTotal(),
         getCustomFoodsUseCase: GetCustomFoods(repository),
         deleteFoodEntryUseCase: DeleteFoodEntry(repository),
+        updateFoodEntryUseCase: UpdateFoodEntry(repository),
       )..loadTodayEntries(),
       child: MaterialApp(
         title: 'CalorieScan',
