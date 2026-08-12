@@ -49,26 +49,37 @@ class _OcrScanScreenState extends State<OcrScanScreen> {
       _isProcessing = true;
     });
 
-    final text = await _ocrService.recognizeText(_imageFile!);
-    final parsed = NutritionParser.parse(text);
+    try {
+      final text = await _ocrService.recognizeText(_imageFile!);
+      final parsed = NutritionParser.parse(text);
 
-    setState(() {
-      _rawText = text;
-      print('=== OCR raw text ===\n$text\n=== END ===');
-      _isProcessing = false;
-      if (parsed.calories != null) {
-        _caloriesController.text = parsed.calories!.toStringAsFixed(0);
+      setState(() {
+        _rawText = text;
+        _isProcessing = false;
+        if (parsed.calories != null) {
+          _caloriesController.text = parsed.calories!.toStringAsFixed(0);
+        }
+        if (parsed.protein != null) {
+          _proteinController.text = parsed.protein!.toStringAsFixed(1);
+        }
+        if (parsed.fat != null) {
+          _fatController.text = parsed.fat!.toStringAsFixed(1);
+        }
+        if (parsed.carbs != null) {
+          _carbsController.text = parsed.carbs!.toStringAsFixed(1);
+        }
+      });
+    } catch (e) {
+      setState(() {
+        _isProcessing = false;
+        _rawText = '';
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Scan failed: $e')),
+        );
       }
-      if (parsed.protein != null) {
-        _proteinController.text = parsed.protein!.toStringAsFixed(1);
-      }
-      if (parsed.fat != null) {
-        _fatController.text = parsed.fat!.toStringAsFixed(1);
-      }
-      if (parsed.carbs != null) {
-        _carbsController.text = parsed.carbs!.toStringAsFixed(1);
-      }
-    });
+    }
   }
 
   Future<void> _save() async {
