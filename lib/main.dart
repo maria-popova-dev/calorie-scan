@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'features/diary/data/models/food_entry_model.dart';
@@ -18,6 +19,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'features/diary/domain/usecases/get_custom_foods.dart';
 import 'features/diary/domain/usecases/delete_food_entry.dart';
 import 'features/diary/domain/usecases/update_food_entry.dart';
+import 'features/settings/presentation/providers/settings_provider.dart';
 
 
 void main() async {
@@ -26,36 +28,55 @@ void main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(FoodEntryModelAdapter());
   final box = await Hive.openBox<FoodEntryModel>('food_entries');
+  final settingsBox = await Hive.openBox('settings');
 
   final repository = DiaryRepositoryImpl(box);
 
-  runApp(CalorieScanApp(repository: repository));
+  runApp(CalorieScanApp(repository: repository, settingsBox: settingsBox));
 }
 
 class CalorieScanApp extends StatelessWidget {
   final DiaryRepositoryImpl repository;
+  final Box settingsBox;
 
-  const CalorieScanApp({super.key, required this.repository});
-
+  const CalorieScanApp({super.key, required this.repository, required this.settingsBox});
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => DiaryProvider(
-        addFoodEntryUseCase: AddFoodEntry(repository),
-        getTodayEntriesUseCase: GetTodayEntries(repository),
-        calculateDailyTotalUseCase: CalculateDailyTotal(),
-        getCustomFoodsUseCase: GetCustomFoods(repository),
-        deleteFoodEntryUseCase: DeleteFoodEntry(repository),
-        updateFoodEntryUseCase: UpdateFoodEntry(repository),
-      )..loadTodayEntries(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => DiaryProvider(
+            addFoodEntryUseCase: AddFoodEntry(repository),
+            getTodayEntriesUseCase: GetTodayEntries(repository),
+            calculateDailyTotalUseCase: CalculateDailyTotal(),
+            getCustomFoodsUseCase: GetCustomFoods(repository),
+            deleteFoodEntryUseCase: DeleteFoodEntry(repository),
+            updateFoodEntryUseCase: UpdateFoodEntry(repository),
+          )..loadTodayEntries(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => SettingsProvider(settingsBox),
+        ),
+      ],
       child: MaterialApp(
         title: 'CalorieScan',
         debugShowCheckedModeBanner: false,
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         theme: ThemeData(
-          colorSchemeSeed: Colors.green,
           useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color(0xFF34C759),
+            brightness: Brightness.light,
+          ),
+          scaffoldBackgroundColor: const Color(0xFFF9F9F7),
+          textTheme: GoogleFonts.interTextTheme(),
+          appBarTheme: const AppBarTheme(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            centerTitle: true,
+            foregroundColor: Colors.black,
+          ),
         ),
         home: const RootScreen(),
       ),
