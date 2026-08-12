@@ -32,6 +32,19 @@ class DiaryRepositoryImpl implements DiaryRepository {
   Future<void> deleteEntry(String id) async {
     await box.delete(id);
   }
+
+  @override
+  Future<void> deleteAllEntries() async {
+    final todayKeys = box.values
+        .where((model) => _isSameDay(model.timestamp, DateTime.now()))
+        .map((model) => model.id)
+        .toList();
+
+    for (final key in todayKeys) {
+      await box.delete(key);
+    }
+  }
+
   @override
   Future<List<FoodEntry>> getAllUniqueEntries() async {
     final seen = <String>{};

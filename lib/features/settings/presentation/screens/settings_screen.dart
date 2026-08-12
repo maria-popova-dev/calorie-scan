@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../diary/presentation/providers/diary_provider.dart';
 import '../providers/settings_provider.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -59,6 +60,39 @@ class _SettingsScreenState extends State<SettingsScreen> {
             FilledButton(
               onPressed: _save,
               child: const Text('Save'),
+            ),
+            const SizedBox(height: 32),
+            OutlinedButton(
+              style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
+              onPressed: () async {
+                final confirmed = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Clear today\'s entries?'),
+                    content: const Text('This will delete everything logged today. Your saved custom foods stay in place for reuse. This cannot be undone.'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        child: const Text('Clear', style: TextStyle(color: Colors.red)),
+                      ),
+                    ],
+                  ),
+                );
+
+                if (confirmed == true && context.mounted) {
+                  await context.read<DiaryProvider>().deleteAllEntries();
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('All entries cleared')),
+                    );
+                  }
+                }
+              },
+              child: const Text('Clear today\'s entries'),
             ),
           ],
         ),

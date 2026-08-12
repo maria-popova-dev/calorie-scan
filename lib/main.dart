@@ -20,6 +20,7 @@ import 'features/diary/domain/usecases/get_custom_foods.dart';
 import 'features/diary/domain/usecases/delete_food_entry.dart';
 import 'features/diary/domain/usecases/update_food_entry.dart';
 import 'features/settings/presentation/providers/settings_provider.dart';
+import 'features/diary/domain/usecases/delete_all_entries.dart';
 
 
 void main() async {
@@ -52,6 +53,7 @@ class CalorieScanApp extends StatelessWidget {
             getCustomFoodsUseCase: GetCustomFoods(repository),
             deleteFoodEntryUseCase: DeleteFoodEntry(repository),
             updateFoodEntryUseCase: UpdateFoodEntry(repository),
+            deleteAllEntriesUseCase: DeleteAllEntries(repository),
           )..loadTodayEntries(),
         ),
         ChangeNotifierProvider(
