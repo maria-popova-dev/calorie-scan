@@ -10,6 +10,7 @@ import 'features/diary/presentation/providers/diary_provider.dart';
 import 'features/diary/presentation/screens/diary_screen.dart';
 import 'features/diary/presentation/screens/home_screen.dart';
 
+import 'features/scan/presentation/screens/ocr_scan_screen.dart';
 import 'features/scan/presentation/screens/scan_screen.dart';
 import 'features/search/presentation/screens/search_screen.dart';
 import 'l10n/app_localizations.dart';
@@ -100,6 +101,16 @@ class _RootScreenState extends State<RootScreen> {
                       Navigator.pop(context);
                       Navigator.of(context).push(
                         MaterialPageRoute(builder: (_) => const ScanScreen()),
+                      );
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.document_scanner),
+                    title: const Text('Scan label'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const OcrScanScreen()),
                       );
                     },
                   ),
