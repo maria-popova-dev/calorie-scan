@@ -9,12 +9,15 @@ import 'features/diary/domain/usecases/calculate_daily_total.dart';
 import 'features/diary/presentation/providers/diary_provider.dart';
 import 'features/diary/presentation/screens/diary_screen.dart';
 import 'features/diary/presentation/screens/home_screen.dart';
-import 'features/diary/presentation/screens/manual_entry_screen.dart';
 
-import 'package:flutter_localizations/flutter_localizations.dart';
+import 'features/scan/presentation/screens/scan_screen.dart';
+import 'features/search/presentation/screens/search_screen.dart';
 import 'l10n/app_localizations.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'features/diary/domain/usecases/get_custom_foods.dart';
 
 void main() async {
+  await dotenv.load(fileName: ".env");
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   Hive.registerAdapter(FoodEntryModelAdapter());
@@ -37,6 +40,7 @@ class CalorieScanApp extends StatelessWidget {
         addFoodEntryUseCase: AddFoodEntry(repository),
         getTodayEntriesUseCase: GetTodayEntries(repository),
         calculateDailyTotalUseCase: CalculateDailyTotal(),
+        getCustomFoodsUseCase: GetCustomFoods(repository),
       )..loadTodayEntries(),
       child: MaterialApp(
         title: 'CalorieScan',
@@ -74,11 +78,37 @@ class _RootScreenState extends State<RootScreen> {
       body: _screens[_currentIndex],
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const ManualEntryScreen()),
+          showModalBottomSheet(
+            context: context,
+            builder: (_) => SafeArea(
+              child: Wrap(
+                children: [
+                  ListTile(
+                    leading: const Icon(Icons.search),
+                    title: const Text('Search food'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const SearchScreen()),
+                      );
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.camera_alt),
+                    title: const Text('Scan photo'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const ScanScreen()),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
           );
         },
-        child: const Icon(Icons.camera_alt),
+        child: const Icon(Icons.add),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomAppBar(

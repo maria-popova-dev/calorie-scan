@@ -4,16 +4,19 @@ import '../../domain/entities/food_entry.dart';
 import '../../domain/usecases/add_food_entry.dart';
 import '../../domain/usecases/get_today_entries.dart';
 import '../../domain/usecases/calculate_daily_total.dart';
+import '../../domain/usecases/get_custom_foods.dart';
 
 class DiaryProvider extends ChangeNotifier {
   final AddFoodEntry addFoodEntryUseCase;
   final GetTodayEntries getTodayEntriesUseCase;
   final CalculateDailyTotal calculateDailyTotalUseCase;
+  final GetCustomFoods getCustomFoodsUseCase;
 
   DiaryProvider({
     required this.addFoodEntryUseCase,
     required this.getTodayEntriesUseCase,
     required this.calculateDailyTotalUseCase,
+    required this.getCustomFoodsUseCase,
   });
 
   List<FoodEntry> _todayEntries = [];
@@ -55,5 +58,8 @@ class DiaryProvider extends ChangeNotifier {
 
     await addFoodEntryUseCase(entry);
     await loadTodayEntries();
+  }
+  Future<List<FoodEntry>> searchCustomFoods(String query) {
+    return getCustomFoodsUseCase(query);
   }
 }
