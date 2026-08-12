@@ -33,6 +33,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
     // Ищем сразу и в своих продуктах, и в USDA
     final customFoods = await context.read<DiaryProvider>().searchCustomFoods(query);
+    if (!mounted) return;
 
     try {
       final results = await _usdaService.searchFoodMultiple(query);
