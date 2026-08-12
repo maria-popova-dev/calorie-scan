@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../diary/domain/entities/food_entry.dart';
 import '../../../diary/presentation/providers/diary_provider.dart';
-import '../../data/services/cloud_vision_service.dart';
+import '../../data/services/ocr_service.dart';
 import '../../domain/nutrition_parser.dart';
 
 class OcrScanScreen extends StatefulWidget {
@@ -17,7 +17,7 @@ class OcrScanScreen extends StatefulWidget {
 
 class _OcrScanScreenState extends State<OcrScanScreen> {
   final _picker = ImagePicker();
-  final _ocrService = CloudVisionService();
+  final _ocrService = OcrService();
 
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
@@ -32,6 +32,7 @@ class _OcrScanScreenState extends State<OcrScanScreen> {
 
   @override
   void dispose() {
+    _ocrService.dispose();
     _nameController.dispose();
     _caloriesController.dispose();
     _proteinController.dispose();
