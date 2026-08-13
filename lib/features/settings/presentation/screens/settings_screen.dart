@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../diary/presentation/providers/diary_provider.dart';
 import '../providers/settings_provider.dart';
+import 'calorie_calculator_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -55,6 +56,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 labelText: 'Daily calorie goal',
                 border: OutlineInputBorder(),
               ),
+            ),
+            const SizedBox(height: 12),
+            TextButton.icon(
+              onPressed: () async {
+                final result = await Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const CalorieCalculatorScreen()),
+                );
+                if (result == null && context.mounted) {
+                  // После возврата с калькулятора обновляем поле новым сохранённым значением
+                  final settings = context.read<SettingsProvider>();
+                  _goalController.text = settings.dailyCalorieGoal.toStringAsFixed(0);
+                }
+              },
+              icon: const Icon(Icons.calculate_outlined),
+              label: const Text('Calculate my goal instead'),
             ),
             const SizedBox(height: 24),
             FilledButton(

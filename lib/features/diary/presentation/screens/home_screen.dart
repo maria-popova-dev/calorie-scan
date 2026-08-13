@@ -6,8 +6,15 @@ import '../../../settings/presentation/screens/settings_screen.dart';
 import '../providers/diary_provider.dart';
 import '../widgets/calorie_ring.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  bool _warningShownThisSession = false;
 
   @override
   Widget build(BuildContext context) {
@@ -15,6 +22,26 @@ class HomeScreen extends StatelessWidget {
     final provider = context.watch<DiaryProvider>();
     final settings = context.watch<SettingsProvider>();
     final total = provider.dailyTotal;
+
+    final isOverGoal = total.calories > settings.dailyCalorieGoal;
+
+    if (isOverGoal && !_warningShownThisSession) {
+      _warningShownThisSession = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'You\'ve exceeded your daily goal of ${settings.dailyCalorieGoal.toStringAsFixed(0)} kcal',
+              ),
+              backgroundColor: const Color(0xFFFF3B30),
+            ),
+          );
+        }
+      });
+    } else if (!isOverGoal) {
+      _warningShownThisSession = false;
+    }
 
     return Scaffold(
       appBar: AppBar(

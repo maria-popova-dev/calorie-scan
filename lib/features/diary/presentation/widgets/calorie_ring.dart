@@ -13,8 +13,10 @@ class CalorieRing extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isOverGoal = consumed > goal;
     final progress = goal > 0 ? (consumed / goal).clamp(0.0, 1.0) : 0.0;
     final remaining = (goal - consumed).clamp(0, double.infinity);
+    final ringColor = isOverGoal ? const Color(0xFFFF3B30) : const Color(0xFF34C759);
 
     return SizedBox(
       width: 220,
@@ -24,7 +26,7 @@ class CalorieRing extends StatelessWidget {
         children: [
           CustomPaint(
             size: const Size(220, 220),
-            painter: _RingPainter(progress: progress),
+            painter: _RingPainter(progress: progress, color: ringColor),
           ),
           Column(
             mainAxisSize: MainAxisSize.min,
@@ -45,11 +47,13 @@ class CalorieRing extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                '${remaining.toStringAsFixed(0)} left',
-                style: const TextStyle(
+                isOverGoal
+                    ? '${(consumed - goal).toStringAsFixed(0)} over'
+                    : '${remaining.toStringAsFixed(0)} left',
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
-                  color: Color(0xFF34C759),
+                  color: ringColor,
                 ),
               ),
             ],
@@ -62,8 +66,9 @@ class CalorieRing extends StatelessWidget {
 
 class _RingPainter extends CustomPainter {
   final double progress;
+  final Color color;
 
-  _RingPainter({required this.progress});
+  _RingPainter({required this.progress, required this.color});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -79,7 +84,7 @@ class _RingPainter extends CustomPainter {
     canvas.drawCircle(center, radius, backgroundPaint);
 
     final progressPaint = Paint()
-      ..color = const Color(0xFF34C759)
+      ..color = color
       ..style = PaintingStyle.stroke
       ..strokeWidth = 16
       ..strokeCap = StrokeCap.round;
@@ -96,5 +101,6 @@ class _RingPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_RingPainter oldDelegate) => oldDelegate.progress != progress;
+  bool shouldRepaint(_RingPainter oldDelegate) =>
+      oldDelegate.progress != progress || oldDelegate.color != color;
 }
