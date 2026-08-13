@@ -12,6 +12,7 @@ class SettingsProvider extends ChangeNotifier {
 
   static const _goalKey = 'daily_calorie_goal';
   static const _defaultGoal = 2000.0;
+  static const _nameKey = 'user_name';
 
   static const _genderKey = 'gender';
   static const _ageKey = 'age';
@@ -27,6 +28,13 @@ class SettingsProvider extends ChangeNotifier {
 
   Future<void> setDailyCalorieGoal(double goal) async {
     await settingsBox.put(_goalKey, goal);
+    notifyListeners();
+  }
+
+  String get userName => (settingsBox.get(_nameKey) as String?) ?? '';
+
+  Future<void> setUserName(String name) async {
+    await settingsBox.put(_nameKey, name);
     notifyListeners();
   }
 

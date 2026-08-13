@@ -13,6 +13,7 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   late final TextEditingController _goalController;
+  late final TextEditingController _nameController;
 
   @override
   void initState() {
@@ -21,11 +22,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _goalController = TextEditingController(
       text: settings.dailyCalorieGoal.toStringAsFixed(0),
     );
+    _nameController = TextEditingController(text: settings.userName);
   }
 
   @override
   void dispose() {
     _goalController.dispose();
+    _nameController.dispose();
     super.dispose();
   }
 
@@ -33,7 +36,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final value = double.tryParse(_goalController.text);
     if (value == null || value <= 0) return;
 
-    await context.read<SettingsProvider>().setDailyCalorieGoal(value);
+    final settings = context.read<SettingsProvider>();
+    await settings.setDailyCalorieGoal(value);
+    await settings.setUserName(_nameController.text.trim());
 
     if (mounted) {
       Navigator.of(context).pop();
@@ -47,6 +52,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          TextField(
+            controller: _nameController,
+            decoration: InputDecoration(
+              labelText: 'Your name',
+              filled: true,
+              fillColor: Colors.white,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide.none,
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            ),
+          ),
+          const SizedBox(height: 12),
           TextField(
             controller: _goalController,
             keyboardType: TextInputType.number,

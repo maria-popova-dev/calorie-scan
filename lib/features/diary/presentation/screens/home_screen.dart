@@ -16,6 +16,28 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   bool _warningShownThisSession = false;
 
+  String _greeting() {
+    final now = DateTime.now();
+    print('=== DateTime.now(): $now, hour: ${now.hour} ===');
+    final hour = now.hour;
+    if (hour < 12) return 'Good morning';
+    if (hour < 18) return 'Good afternoon';
+    return 'Good evening';
+  }
+
+  String _formattedDate() {
+    const weekdays = [
+      'Monday', 'Tuesday', 'Wednesday', 'Thursday',
+      'Friday', 'Saturday', 'Sunday'
+    ];
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    final now = DateTime.now();
+    return '${weekdays[now.weekday - 1]}, ${now.day} ${months[now.month - 1]}';
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -43,57 +65,79 @@ class _HomeScreenState extends State<HomeScreen> {
       _warningShownThisSession = false;
     }
 
+    final name = settings.userName;
+    final greetingText = name.isEmpty ? _greeting() : '${_greeting()}, $name';
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.homeTitle),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings_outlined),
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const SettingsScreen()),
-              );
-            },
-          ),
-        ],
-      ),
-      body: provider.isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(vertical: 24),
-        child: Column(
-          children: [
-            CalorieRing(
-              consumed: total.calories,
-              goal: settings.dailyCalorieGoal,
-            ),
-            const SizedBox(height: 32),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _MacroStat(
-                    label: l10n.proteinLabel,
-                    value: total.protein,
-                  ),
-                  _MacroStat(
-                    label: l10n.fatLabel,
-                    value: total.fat,
-                  ),
-                  _MacroStat(
-                    label: l10n.carbsLabel,
-                    value: total.carbs,
-                  ),
-                ],
+      body: SafeArea(
+        child: provider.isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : SingleChildScrollView(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            greetingText,
+                            style: const TextStyle(
+                              fontSize: 26,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            _formattedDate(),
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[500],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.settings_outlined),
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              l10n.entriesToday(provider.todayEntries.length),
-              style: TextStyle(color: Colors.grey[600], fontSize: 13),
-            ),
-          ],
+              const SizedBox(height: 16),
+              CalorieRing(
+                consumed: total.calories,
+                goal: settings.dailyCalorieGoal,
+              ),
+              const SizedBox(height: 32),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _MacroStat(label: l10n.proteinLabel, value: total.protein),
+                    _MacroStat(label: l10n.fatLabel, value: total.fat),
+                    _MacroStat(label: l10n.carbsLabel, value: total.carbs),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                l10n.entriesToday(provider.todayEntries.length),
+                style: TextStyle(color: Colors.grey[600], fontSize: 13),
+              ),
+              const SizedBox(height: 100),
+            ],
+          ),
         ),
       ),
     );
