@@ -72,6 +72,19 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
     return null;
   }
 
+  InputDecoration _fieldDecoration(String label) {
+    return InputDecoration(
+      labelText: label,
+      filled: true,
+      fillColor: Colors.white,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide.none,
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -86,47 +99,58 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
             children: [
               TextFormField(
                 controller: _nameController,
-                decoration: InputDecoration(labelText: l10n.nameLabel),
+                decoration: _fieldDecoration(l10n.nameLabel),
                 validator: _validateRequired,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _caloriesController,
-                decoration: InputDecoration(labelText: l10n.caloriesLabel),
+                decoration: _fieldDecoration(l10n.caloriesLabel),
                 keyboardType: TextInputType.number,
                 validator: _validateNumber,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _proteinController,
-                decoration: InputDecoration(labelText: l10n.proteinLabel),
+                decoration: _fieldDecoration(l10n.proteinLabel),
                 keyboardType: TextInputType.number,
                 validator: _validateNumber,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _fatController,
-                decoration: InputDecoration(labelText: l10n.fatLabel),
+                decoration: _fieldDecoration(l10n.fatLabel),
                 keyboardType: TextInputType.number,
                 validator: _validateNumber,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _carbsController,
-                decoration: InputDecoration(labelText: l10n.carbsLabel),
+                decoration: _fieldDecoration(l10n.carbsLabel),
                 keyboardType: TextInputType.number,
                 validator: _validateNumber,
               ),
               const SizedBox(height: 24),
-              FilledButton(
-                onPressed: _isSaving ? null : _save,
-                child: _isSaving
-                    ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-                    : Text(l10n.saveButton),
+              SizedBox(
+                height: 52,
+                child: FilledButton(
+                  style: FilledButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  onPressed: _isSaving ? null : _save,
+                  child: _isSaving
+                      ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                      : Text(l10n.saveButton),
+                ),
               ),
             ],
           ),
