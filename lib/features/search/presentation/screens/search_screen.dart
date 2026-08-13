@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../custom_foods/domain/entities/custom_food.dart';
+import '../../../custom_foods/presentation/providers/custom_food_provider.dart';
 import '../../../diary/domain/entities/food_entry.dart';
 import '../../../diary/presentation/providers/diary_provider.dart';
 import '../../../scan/data/services/usda_nutrition_service.dart';
@@ -18,7 +20,7 @@ class _SearchScreenState extends State<SearchScreen> {
   final _queryController = TextEditingController();
 
   List<UsdaNutritionResult> _results = [];
-  List<FoodEntry> _customResults = [];
+  List<CustomFood> _customResults = [];
   bool _isSearching = false;
   String? _errorMessage;
 
@@ -31,12 +33,12 @@ class _SearchScreenState extends State<SearchScreen> {
       _errorMessage = null;
     });
 
-    // Ищем сразу и в своих продуктах, и в USDA
-    final customFoods = await context.read<DiaryProvider>().searchCustomFoods(query);
+    final customFoods = await context.read<CustomFoodProvider>().search(query);
     if (!mounted) return;
 
     try {
       final results = await _usdaService.searchFoodMultiple(query);
+      if (!mounted) return;
       setState(() {
         _customResults = customFoods;
         _results = results;
@@ -46,6 +48,7 @@ class _SearchScreenState extends State<SearchScreen> {
         _isSearching = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _customResults = customFoods;
         _errorMessage = 'Connection error. Showing your custom foods only.';
@@ -62,14 +65,14 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  Future<void> _reAddCustomFood(FoodEntry entry) async {
+  Future<void> _reAddCustomFood(CustomFood food) async {
     await context.read<DiaryProvider>().addEntry(
-      name: entry.name,
-      calories: entry.calories,
-      protein: entry.protein,
-      fat: entry.fat,
-      carbs: entry.carbs,
-      source: entry.source,
+      name: food.name,
+      calories: food.calories,
+      protein: food.protein,
+      fat: food.fat,
+      carbs: food.carbs,
+      source: FoodEntrySource.manual,
     );
 
     if (mounted) {
@@ -113,10 +116,11 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
           ),
           if (_isSearching) const CircularProgressIndicator(),
-          if (_errorMessage != null) Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(_errorMessage!),
-          ),
+          if (_errorMessage != null)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Text(_errorMessage!),
+            ),
           Expanded(
             child: ListView(
               children: [
@@ -128,11 +132,11 @@ class _SearchScreenState extends State<SearchScreen> {
                       style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
                     ),
                   ),
-                  ..._customResults.map((entry) => ListTile(
+                  ..._customResults.map((food) => ListTile(
                     leading: const Icon(Icons.star, color: Colors.green),
-                    title: Text(entry.name),
-                    subtitle: Text('${entry.calories.toStringAsFixed(0)} kcal'),
-                    onTap: () => _reAddCustomFood(entry),
+                    title: Text(food.name),
+                    subtitle: Text('${food.calories.toStringAsFixed(0)} kcal'),
+                    onTap: () => _reAddCustomFood(food),
                   )),
                   const Divider(),
                 ],
@@ -304,12 +308,29 @@ class _CreateCustomFoodScreenState extends State<_CreateCustomFoodScreen> {
 
     setState(() => _isSaving = true);
 
+    final name = _nameController.text;
+    final calories = double.parse(_caloriesController.text);
+    final protein = double.parse(_proteinController.text);
+    final fat = double.parse(_fatController.text);
+    final carbs = double.parse(_carbsController.text);
+
+    // Сохраняем как custom food для повторного использования в будущем
+    await context.read<CustomFoodProvider>().saveCustomFood(
+      name: name,
+      calories: calories,
+      protein: protein,
+      fat: fat,
+      carbs: carbs,
+    );
+
+    // И сразу же добавляем в дневник за сегодня
+    if (!mounted) return;
     await context.read<DiaryProvider>().addEntry(
-      name: _nameController.text,
-      calories: double.parse(_caloriesController.text),
-      protein: double.parse(_proteinController.text),
-      fat: double.parse(_fatController.text),
-      carbs: double.parse(_carbsController.text),
+      name: name,
+      calories: calories,
+      protein: protein,
+      fat: fat,
+      carbs: carbs,
       source: FoodEntrySource.manual,
     );
 

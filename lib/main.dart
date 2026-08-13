@@ -21,26 +21,40 @@ import 'features/diary/domain/usecases/delete_food_entry.dart';
 import 'features/diary/domain/usecases/update_food_entry.dart';
 import 'features/settings/presentation/providers/settings_provider.dart';
 import 'features/diary/domain/usecases/delete_all_entries.dart';
-
+import 'features/custom_foods/data/models/custom_food_model.dart';
+import 'features/custom_foods/data/repositories/custom_food_repository_impl.dart';
+import 'features/custom_foods/presentation/providers/custom_food_provider.dart';
 
 void main() async {
   await dotenv.load(fileName: ".env");
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   Hive.registerAdapter(FoodEntryModelAdapter());
+  Hive.registerAdapter(CustomFoodModelAdapter());
   final box = await Hive.openBox<FoodEntryModel>('food_entries');
+  final customFoodsBox = await Hive.openBox<CustomFoodModel>('custom_foods');
   final settingsBox = await Hive.openBox('settings');
-
   final repository = DiaryRepositoryImpl(box);
+  final customFoodRepository = CustomFoodRepositoryImpl(customFoodsBox);
 
-  runApp(CalorieScanApp(repository: repository, settingsBox: settingsBox));
+  runApp(CalorieScanApp(
+    repository: repository,
+    customFoodRepository: customFoodRepository,
+    settingsBox: settingsBox,
+  ));
 }
 
 class CalorieScanApp extends StatelessWidget {
   final DiaryRepositoryImpl repository;
+  final CustomFoodRepositoryImpl customFoodRepository;
   final Box settingsBox;
 
-  const CalorieScanApp({super.key, required this.repository, required this.settingsBox});
+  const CalorieScanApp({
+    super.key,
+    required this.repository,
+    required this.customFoodRepository,
+    required this.settingsBox,
+  });
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -58,6 +72,9 @@ class CalorieScanApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (_) => SettingsProvider(settingsBox),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => CustomFoodProvider(customFoodRepository),
         ),
       ],
       child: MaterialApp(
