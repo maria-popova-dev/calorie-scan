@@ -8,6 +8,37 @@ import '../../../diary/presentation/providers/diary_provider.dart';
 import '../../../scan/data/services/usda_nutrition_service.dart';
 import '../../../scan/domain/scale_nutrition.dart';
 
+InputDecoration _softFieldDecoration(String label) {
+  return InputDecoration(
+    labelText: label,
+    filled: true,
+    fillColor: Colors.white,
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(16),
+      borderSide: BorderSide.none,
+    ),
+    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+  );
+}
+
+Widget _roundedButton({
+  required VoidCallback? onPressed,
+  required Widget child,
+}) {
+  return SizedBox(
+    height: 52,
+    child: FilledButton(
+      style: FilledButton.styleFrom(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+      ),
+      onPressed: onPressed,
+      child: child,
+    ),
+  );
+}
+
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
 
@@ -120,10 +151,11 @@ class _SearchScreenState extends State<SearchScreen> {
               onSubmitted: (_) => _search(),
             ),
           ),
-          if (_isSearching) const Padding(
-            padding: EdgeInsets.all(12),
-            child: CircularProgressIndicator(),
-          ),
+          if (_isSearching)
+            const Padding(
+              padding: EdgeInsets.all(12),
+              child: CircularProgressIndicator(),
+            ),
           if (_errorMessage != null)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -327,27 +359,29 @@ class _FoodDetailScreenState extends State<_FoodDetailScreen> {
             TextField(
               controller: _weightController,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Portion weight (g)',
-                border: OutlineInputBorder(),
-              ),
+              decoration: _softFieldDecoration('Portion weight (g)'),
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 24),
-            Text(
-              '${scaled.calories.toStringAsFixed(0)} ${l10n.caloriesLabel}',
-              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+            Center(
+              child: Column(
+                children: [
+                  Text(
+                    '${scaled.calories.toStringAsFixed(0)} ${l10n.caloriesLabel}',
+                    style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    '${l10n.proteinShort}: ${scaled.protein.toStringAsFixed(1)} · '
+                        '${l10n.fatShort}: ${scaled.fat.toStringAsFixed(1)} · '
+                        '${l10n.carbsShort}: ${scaled.carbs.toStringAsFixed(1)}',
+                    style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                  ),
+                ],
+              ),
             ),
-            Text(
-              '${l10n.proteinShort}: ${scaled.protein.toStringAsFixed(1)} · '
-                  '${l10n.fatShort}: ${scaled.fat.toStringAsFixed(1)} · '
-                  '${l10n.carbsShort}: ${scaled.carbs.toStringAsFixed(1)}',
-            ),
-            const SizedBox(height: 24),
-            FilledButton(
-              onPressed: _save,
-              child: Text(l10n.saveButton),
-            ),
+            const SizedBox(height: 32),
+            _roundedButton(onPressed: _save, child: Text(l10n.saveButton)),
           ],
         ),
       ),
@@ -444,41 +478,47 @@ class _CreateCustomFoodScreenState extends State<_CreateCustomFoodScreen> {
             children: [
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Name'),
+                decoration: _softFieldDecoration('Name'),
                 validator: _validateRequired,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _caloriesController,
-                decoration: const InputDecoration(labelText: 'Calories (kcal)'),
+                decoration: _softFieldDecoration('Calories (kcal)'),
                 keyboardType: TextInputType.number,
                 validator: _validateNumber,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _proteinController,
-                decoration: const InputDecoration(labelText: 'Protein (g)'),
+                decoration: _softFieldDecoration('Protein (g)'),
                 keyboardType: TextInputType.number,
                 validator: _validateNumber,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _fatController,
-                decoration: const InputDecoration(labelText: 'Fat (g)'),
+                decoration: _softFieldDecoration('Fat (g)'),
                 keyboardType: TextInputType.number,
                 validator: _validateNumber,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _carbsController,
-                decoration: const InputDecoration(labelText: 'Carbs (g)'),
+                decoration: _softFieldDecoration('Carbs (g)'),
                 keyboardType: TextInputType.number,
                 validator: _validateNumber,
               ),
               const SizedBox(height: 24),
-              FilledButton(
+              _roundedButton(
                 onPressed: _isSaving ? null : _save,
-                child: Text(l10n.saveButton),
+                child: _isSaving
+                    ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                )
+                    : Text(l10n.saveButton),
               ),
             ],
           ),
