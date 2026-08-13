@@ -20,5 +20,6 @@
   },
   "proteinShort": "P",
   "fatShort": "F",
-  "carbsShort": "C"
+  "carbsShort": "C",
+  "approximateNote": "Estimate based on general recognition — please verify"
 }

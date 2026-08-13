@@ -15,5 +15,6 @@
   "entriesToday": "Записей за сегодня: {count}",
   "proteinShort": "Б",
   "fatShort": "Ж",
-  "carbsShort": "У"
+  "carbsShort": "У",
+  "approximateNote": "Приблизительная оценка — проверьте и при необходимости скорректируйте"
 }

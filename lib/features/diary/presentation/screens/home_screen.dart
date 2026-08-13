@@ -53,8 +53,15 @@ class _HomeScreenState extends State<HomeScreen> {
             SnackBar(
               content: Text(
                 'You\'ve exceeded your daily goal of ${settings.dailyCalorieGoal.toStringAsFixed(0)} kcal',
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
               ),
               backgroundColor: const Color(0xFFFF3B30),
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              margin: const EdgeInsets.fromLTRB(20, 0, 20, 100),
+              elevation: 4,
             ),
           );
         }

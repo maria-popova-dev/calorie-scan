@@ -60,4 +60,8 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get carbsShort => 'У';
+
+  @override
+  String get approximateNote =>
+      'Приблизительная оценка — проверьте и при необходимости скорректируйте';
 }

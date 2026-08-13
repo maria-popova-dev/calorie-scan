@@ -60,4 +60,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get carbsShort => 'C';
+
+  @override
+  String get approximateNote =>
+      'Estimate based on general recognition — please verify';
 }

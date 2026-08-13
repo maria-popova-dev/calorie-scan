@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../diary/domain/entities/food_entry.dart';
@@ -31,7 +32,6 @@ class _ScanScreenState extends State<ScanScreen> {
   bool _isProcessing = false;
   String? _foodDescription;
 
-  // Нутриенты на 100г (из USDA или локальной таблицы)
   double? _caloriesPer100g;
   double? _proteinPer100g;
   double? _fatPer100g;
@@ -58,14 +58,11 @@ class _ScanScreenState extends State<ScanScreen> {
     });
 
     final labels = await _labelService.labelImage(_imageFile!);
-    print('=== ML Kit labels: $labels ===');
 
-    // Пытаемся найти данные через USDA API для каждого лейбла по очереди
     for (final label in labels) {
       if (_genericLabels.contains(label.toLowerCase())) continue;
       try {
         final result = await _usdaService.searchFood(label);
-        print('=== USDA search "$label" -> ${result?.description} (${result?.calories} kcal) ===');
         if (result != null) {
           setState(() {
             _foodDescription = result.description;
@@ -82,8 +79,6 @@ class _ScanScreenState extends State<ScanScreen> {
       }
     }
 
-    // Fallback — локальная таблица, если USDA ничего не нашёл
-// Сначала ищем конкретное совпадение (не approximate)
     for (final label in labels) {
       if (_genericLabels.contains(label.toLowerCase())) continue;
       final estimate = NutritionLookup.lookup(label);
@@ -99,7 +94,7 @@ class _ScanScreenState extends State<ScanScreen> {
         return;
       }
     }
-    // Если совсем ничего конкретного не нашли — берём общую категорию
+
     for (final label in labels) {
       final estimate = NutritionLookup.lookup(label);
       if (estimate != null) {
@@ -117,6 +112,7 @@ class _ScanScreenState extends State<ScanScreen> {
 
     setState(() => _isProcessing = false);
   }
+
   Future<void> _saveEntry() async {
     if (_caloriesPer100g == null) return;
 
@@ -144,6 +140,39 @@ class _ScanScreenState extends State<ScanScreen> {
     }
   }
 
+  Widget _pickButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 10,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              Icon(icon, size: 22, color: const Color(0xFF34C759)),
+              const SizedBox(height: 6),
+              Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -167,47 +196,61 @@ class _ScanScreenState extends State<ScanScreen> {
           children: [
             if (_imageFile != null)
               ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.file(_imageFile!, height: 250, fit: BoxFit.cover),
+                borderRadius: BorderRadius.circular(20),
+                child: Image.file(_imageFile!, height: 220, width: double.infinity, fit: BoxFit.cover),
               ),
             const SizedBox(height: 16),
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                ElevatedButton.icon(
-                  onPressed: () => _pickAndAnalyze(ImageSource.camera),
-                  icon: const Icon(Icons.camera_alt),
-                  label: const Text('Camera'),
+                _pickButton(
+                  icon: LucideIcons.camera,
+                  label: 'Camera',
+                  onTap: () => _pickAndAnalyze(ImageSource.camera),
                 ),
                 const SizedBox(width: 12),
-                ElevatedButton.icon(
-                  onPressed: () => _pickAndAnalyze(ImageSource.gallery),
-                  icon: const Icon(Icons.photo_library),
-                  label: const Text('Gallery'),
+                _pickButton(
+                  icon: LucideIcons.image,
+                  label: 'Gallery',
+                  onTap: () => _pickAndAnalyze(ImageSource.gallery),
                 ),
               ],
             ),
             const SizedBox(height: 24),
             if (_isProcessing) const CircularProgressIndicator(),
             if (!_isProcessing && _imageFile != null && _caloriesPer100g == null)
-              const Text('Nothing recognized. Try another photo.'),
+              Text(
+                'Nothing recognized. Try another photo.',
+                style: TextStyle(color: Colors.grey[600]),
+              ),
             if (scaled != null) ...[
               Text(
                 _foodDescription!,
                 style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 4),
+              Text(
+                l10n.approximateNote,
+                style: TextStyle(fontSize: 12, color: Colors.grey[500], fontStyle: FontStyle.italic),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
               TextField(
                 controller: _weightController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Portion weight (g)',
-                  border: OutlineInputBorder(),
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 ),
                 onChanged: (_) => setState(() {}),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               Text(
                 '${scaled.calories.toStringAsFixed(0)} ${l10n.caloriesLabel}',
                 style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
@@ -216,11 +259,21 @@ class _ScanScreenState extends State<ScanScreen> {
                 '${l10n.proteinShort}: ${scaled.protein.toStringAsFixed(1)} · '
                     '${l10n.fatShort}: ${scaled.fat.toStringAsFixed(1)} · '
                     '${l10n.carbsShort}: ${scaled.carbs.toStringAsFixed(1)}',
+                style: TextStyle(color: Colors.grey[600], fontSize: 13),
               ),
-              const SizedBox(height: 16),
-              FilledButton(
-                onPressed: _saveEntry,
-                child: Text(l10n.saveButton),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: FilledButton(
+                  style: FilledButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  onPressed: _saveEntry,
+                  child: Text(l10n.saveButton),
+                ),
               ),
             ],
           ],

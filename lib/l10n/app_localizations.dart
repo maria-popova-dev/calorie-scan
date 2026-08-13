@@ -199,6 +199,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'C'**
   String get carbsShort;
+
+  /// No description provided for @approximateNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimate based on general recognition — please verify'**
+  String get approximateNote;
 }
 
 class _AppLocalizationsDelegate
