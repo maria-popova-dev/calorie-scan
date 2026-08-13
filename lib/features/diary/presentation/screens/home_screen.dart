@@ -17,9 +17,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _warningShownThisSession = false;
 
   String _greeting() {
-    final now = DateTime.now();
-    print('=== DateTime.now(): $now, hour: ${now.hour} ===');
-    final hour = now.hour;
+    final hour = DateTime.now().hour;
     if (hour < 12) return 'Good morning';
     if (hour < 18) return 'Good afternoon';
     return 'Good evening';
@@ -84,11 +82,16 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            greetingText,
-                            style: const TextStyle(
-                              fontSize: 26,
-                              fontWeight: FontWeight.bold,
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              greetingText,
+                              maxLines: 1,
+                              style: const TextStyle(
+                                fontSize: 26,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                           const SizedBox(height: 2),

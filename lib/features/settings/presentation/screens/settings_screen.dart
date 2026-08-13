@@ -54,10 +54,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
         children: [
           TextField(
             controller: _nameController,
+            maxLength: 15,
             decoration: InputDecoration(
-              labelText: 'Your name',
+              labelText: 'First name',
               filled: true,
               fillColor: Colors.white,
+              counterText: '',
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
                 borderSide: BorderSide.none,
