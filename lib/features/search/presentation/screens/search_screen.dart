@@ -5,6 +5,7 @@ import '../../../custom_foods/domain/entities/custom_food.dart';
 import '../../../custom_foods/presentation/providers/custom_food_provider.dart';
 import '../../../diary/domain/entities/food_entry.dart';
 import '../../../diary/presentation/providers/diary_provider.dart';
+import '../../../premium/presentation/providers/premium_provider.dart';
 import '../../../scan/data/services/usda_nutrition_service.dart';
 import '../../../scan/domain/scale_nutrition.dart';
 
@@ -422,6 +423,18 @@ class _CreateCustomFoodScreenState extends State<_CreateCustomFoodScreen> {
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
 
+    final premium = context.read<PremiumProvider>();
+    if (!premium.isPremium) {
+      final currentCount = await context.read<CustomFoodProvider>().search('');
+      if (currentCount.length >= PremiumProvider.maxFreeCustomFoods) {
+        if (context.mounted) {
+          _showPremiumDialog();
+        }
+        return;
+      }
+    }
+
+    if (!mounted) return;
     setState(() => _isSaving = true);
 
     final name = _nameController.text;
@@ -451,6 +464,28 @@ class _CreateCustomFoodScreenState extends State<_CreateCustomFoodScreen> {
     if (mounted) {
       Navigator.of(context).popUntil((route) => route.isFirst);
     }
+  }
+
+  void _showPremiumDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Custom foods limit reached'),
+        content: const Text(
+          'You\'ve reached the free limit of 5 custom foods. Upgrade to Premium for unlimited custom foods and more.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Not now'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Upgrade'),
+          ),
+        ],
+      ),
+    );
   }
 
   String? _validateRequired(String? value) {

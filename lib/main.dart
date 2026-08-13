@@ -25,6 +25,7 @@ import 'features/diary/domain/usecases/delete_all_entries.dart';
 import 'features/custom_foods/data/models/custom_food_model.dart';
 import 'features/custom_foods/data/repositories/custom_food_repository_impl.dart';
 import 'features/custom_foods/presentation/providers/custom_food_provider.dart';
+import 'features/premium/presentation/providers/premium_provider.dart';
 
 void main() async {
   await dotenv.load(fileName: ".env");
@@ -76,6 +77,9 @@ class CalorieScanApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (_) => CustomFoodProvider(customFoodRepository),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => PremiumProvider(settingsBox),
         ),
       ],
       child: MaterialApp(

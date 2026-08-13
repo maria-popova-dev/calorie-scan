@@ -30,4 +30,8 @@ class CustomFoodProvider extends ChangeNotifier {
   Future<List<CustomFood>> search(String query) {
     return repository.searchCustomFoods(query);
   }
+  Future<int> count() async {
+    final all = await repository.searchCustomFoods('');
+    return all.length;
+  }
 }
