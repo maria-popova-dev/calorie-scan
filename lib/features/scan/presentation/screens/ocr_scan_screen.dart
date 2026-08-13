@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../diary/domain/entities/food_entry.dart';
@@ -77,7 +78,16 @@ class _OcrScanScreenState extends State<OcrScanScreen> {
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Scan failed: $e')),
+          SnackBar(
+            content: Text(
+              'Scan failed: $e',
+              style: const TextStyle(color: Colors.white),
+            ),
+            backgroundColor: const Color(0xFFFF3B30),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            margin: const EdgeInsets.fromLTRB(20, 0, 20, 100),
+          ),
         );
       }
     }
@@ -105,6 +115,52 @@ class _OcrScanScreenState extends State<OcrScanScreen> {
     return null;
   }
 
+  InputDecoration _fieldDecoration(String label) {
+    return InputDecoration(
+      labelText: label,
+      filled: true,
+      fillColor: Colors.white,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide.none,
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    );
+  }
+
+  Widget _pickButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 10,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              Icon(icon, size: 22, color: const Color(0xFF34C759)),
+              const SizedBox(height: 6),
+              Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -117,27 +173,26 @@ class _OcrScanScreenState extends State<OcrScanScreen> {
           children: [
             if (_imageFile != null)
               ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.file(_imageFile!, height: 200, fit: BoxFit.cover),
+                borderRadius: BorderRadius.circular(20),
+                child: Image.file(_imageFile!, height: 200, width: double.infinity, fit: BoxFit.cover),
               ),
             const SizedBox(height: 16),
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                ElevatedButton.icon(
-                  onPressed: () => _pickAndScan(ImageSource.camera),
-                  icon: const Icon(Icons.camera_alt),
-                  label: const Text('Camera'),
+                _pickButton(
+                  icon: LucideIcons.camera,
+                  label: 'Camera',
+                  onTap: () => _pickAndScan(ImageSource.camera),
                 ),
                 const SizedBox(width: 12),
-                ElevatedButton.icon(
-                  onPressed: () => _pickAndScan(ImageSource.gallery),
-                  icon: const Icon(Icons.photo_library),
-                  label: const Text('Gallery'),
+                _pickButton(
+                  icon: LucideIcons.image,
+                  label: 'Gallery',
+                  onTap: () => _pickAndScan(ImageSource.gallery),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             if (_isProcessing) const CircularProgressIndicator(),
             if (_rawText != null) ...[
               Form(
@@ -146,38 +201,47 @@ class _OcrScanScreenState extends State<OcrScanScreen> {
                   children: [
                     TextFormField(
                       controller: _nameController,
-                      decoration: const InputDecoration(labelText: 'Product name'),
+                      decoration: _fieldDecoration('Product name'),
                       validator: _validateRequired,
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
                       controller: _caloriesController,
-                      decoration: const InputDecoration(labelText: 'Calories (kcal, per 100g)'),
+                      decoration: _fieldDecoration('Calories (kcal, per 100g)'),
                       keyboardType: TextInputType.number,
                       validator: _validateRequired,
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
                       controller: _proteinController,
-                      decoration: const InputDecoration(labelText: 'Protein (g)'),
+                      decoration: _fieldDecoration('Protein (g)'),
                       keyboardType: TextInputType.number,
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
                       controller: _fatController,
-                      decoration: const InputDecoration(labelText: 'Fat (g)'),
+                      decoration: _fieldDecoration('Fat (g)'),
                       keyboardType: TextInputType.number,
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
                       controller: _carbsController,
-                      decoration: const InputDecoration(labelText: 'Carbs (g)'),
+                      decoration: _fieldDecoration('Carbs (g)'),
                       keyboardType: TextInputType.number,
                     ),
                     const SizedBox(height: 24),
-                    FilledButton(
-                      onPressed: _save,
-                      child: Text(l10n.saveButton),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 52,
+                      child: FilledButton(
+                        style: FilledButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        onPressed: _save,
+                        child: Text(l10n.saveButton),
+                      ),
                     ),
                   ],
                 ),
