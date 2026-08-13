@@ -123,6 +123,12 @@ class _RootScreenState extends State<RootScreen> {
     DiaryScreen(),
   ];
 
+  void _openScan(Widget screen) {
+    Navigator.pop(context);
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => screen),
+    );
+  }
   void _openAddMenu() {
     showModalBottomSheet(
       context: context,
@@ -142,22 +148,12 @@ class _RootScreenState extends State<RootScreen> {
             ListTile(
               leading: const Icon(LucideIcons.camera),
               title: const Text('Scan photo'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const ScanScreen()),
-                );
-              },
+              onTap: () => _openScan(const ScanScreen()),
             ),
             ListTile(
               leading: const Icon(LucideIcons.scanLine),
               title: const Text('Scan label'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const OcrScanScreen()),
-                );
-              },
+              onTap: () => _openScan(const OcrScanScreen()),
             ),
           ],
         ),
