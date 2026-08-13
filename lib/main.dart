@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import 'features/diary/data/models/food_entry_model.dart';
 import 'features/diary/data/repositories/diary_repository_impl.dart';
@@ -118,73 +119,136 @@ class _RootScreenState extends State<RootScreen> {
     DiaryScreen(),
   ];
 
+  void _openAddMenu() {
+    showModalBottomSheet(
+      context: context,
+      builder: (_) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(LucideIcons.search),
+              title: const Text('Search food'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const SearchScreen()),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(LucideIcons.camera),
+              title: const Text('Scan photo'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const ScanScreen()),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(LucideIcons.scanLine),
+              title: const Text('Scan label'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const OcrScanScreen()),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: _screens[_currentIndex],
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showModalBottomSheet(
-            context: context,
-            builder: (_) => SafeArea(
-              child: Wrap(
-                children: [
-                  ListTile(
-                    leading: const Icon(Icons.search),
-                    title: const Text('Search food'),
-                    onTap: () {
-                      Navigator.pop(context);
-                      Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const SearchScreen()),
-                      );
-                    },
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.camera_alt),
-                    title: const Text('Scan photo'),
-                    onTap: () {
-                      Navigator.pop(context);
-                      Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const ScanScreen()),
-                      );
-                    },
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.document_scanner),
-                    title: const Text('Scan label'),
-                    onTap: () {
-                      Navigator.pop(context);
-                      Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const OcrScanScreen()),
-                      );
-                    },
-                  ),
-                ],
-              ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
+          child: Container(
+            height: 64,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(32),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.08),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                ),
+              ],
             ),
-          );
-        },
-        child: const Icon(Icons.add),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: BottomAppBar(
-        shape: const CircularNotchedRectangle(),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            IconButton(
-              icon: Icon(Icons.home,
-                  color: _currentIndex == 0 ? Colors.green : Colors.grey),
-              onPressed: () => setState(() => _currentIndex = 0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _NavIcon(
+                  icon: LucideIcons.home,
+                  isActive: _currentIndex == 0,
+                  onTap: () => setState(() => _currentIndex = 0),
+                ),
+                _AddButton(onTap: _openAddMenu),
+                _NavIcon(
+                  icon: LucideIcons.bookOpen,
+                  isActive: _currentIndex == 1,
+                  onTap: () => setState(() => _currentIndex = 1),
+                ),
+              ],
             ),
-            const SizedBox(width: 40),
-            IconButton(
-              icon: Icon(Icons.book,
-                  color: _currentIndex == 1 ? Colors.green : Colors.grey),
-              onPressed: () => setState(() => _currentIndex = 1),
-            ),
-          ],
+          ),
         ),
+      ),
+    );
+  }
+}
+
+class _NavIcon extends StatelessWidget {
+  final IconData icon;
+  final bool isActive;
+  final VoidCallback onTap;
+
+  const _NavIcon({
+    required this.icon,
+    required this.isActive,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        child: Icon(
+          icon,
+          size: 26,
+          color: isActive ? const Color(0xFF34C759) : Colors.grey[400],
+        ),
+      ),
+    );
+  }
+}
+
+class _AddButton extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _AddButton({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 44,
+        height: 44,
+        decoration: const BoxDecoration(
+          color: Color(0xFF34C759),
+          shape: BoxShape.circle,
+        ),
+        child: const Icon(LucideIcons.plus, color: Colors.white, size: 22),
       ),
     );
   }
