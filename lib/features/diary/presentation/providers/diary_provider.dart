@@ -8,6 +8,7 @@ import '../../domain/usecases/get_custom_foods.dart';
 import '../../domain/usecases/delete_food_entry.dart';
 import '../../domain/usecases/update_food_entry.dart';
 import '../../domain/usecases/delete_all_entries.dart';
+import '../../domain/usecases/get_history_by_day.dart';
 
 class DiaryProvider extends ChangeNotifier {
   final AddFoodEntry addFoodEntryUseCase;
@@ -17,6 +18,7 @@ class DiaryProvider extends ChangeNotifier {
   final DeleteFoodEntry deleteFoodEntryUseCase;
   final UpdateFoodEntry updateFoodEntryUseCase;
   final DeleteAllEntries deleteAllEntriesUseCase;
+  final GetHistoryByDay getHistoryByDayUseCase;
 
   DiaryProvider({
     required this.addFoodEntryUseCase,
@@ -26,6 +28,7 @@ class DiaryProvider extends ChangeNotifier {
     required this.deleteFoodEntryUseCase,
     required this.updateFoodEntryUseCase,
     required this.deleteAllEntriesUseCase,
+    required this.getHistoryByDayUseCase,
   });
 
   List<FoodEntry> _todayEntries = [];
@@ -82,5 +85,8 @@ class DiaryProvider extends ChangeNotifier {
   Future<void> deleteAllEntries() async {
     await deleteAllEntriesUseCase();
     await loadTodayEntries();
+  }
+  Future<List<DayHistory>> getHistory() {
+    return getHistoryByDayUseCase();
   }
 }

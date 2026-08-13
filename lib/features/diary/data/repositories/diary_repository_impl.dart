@@ -65,6 +65,11 @@ class DiaryRepositoryImpl implements DiaryRepository {
     return unique;
   }
 
+  @override
+  Future<List<FoodEntry>> getAllEntries() async {
+    return box.values.map((model) => model.toEntity()).toList();
+  }
+
   bool _isSameDay(DateTime a, DateTime b) {
     return a.year == b.year && a.month == b.month && a.day == b.day;
   }

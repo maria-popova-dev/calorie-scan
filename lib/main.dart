@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
@@ -26,6 +25,7 @@ import 'features/custom_foods/data/models/custom_food_model.dart';
 import 'features/custom_foods/data/repositories/custom_food_repository_impl.dart';
 import 'features/custom_foods/presentation/providers/custom_food_provider.dart';
 import 'features/premium/presentation/providers/premium_provider.dart';
+import 'features/diary/domain/usecases/get_history_by_day.dart';
 
 void main() async {
   await dotenv.load(fileName: ".env");
@@ -70,6 +70,7 @@ class CalorieScanApp extends StatelessWidget {
             deleteFoodEntryUseCase: DeleteFoodEntry(repository),
             updateFoodEntryUseCase: UpdateFoodEntry(repository),
             deleteAllEntriesUseCase: DeleteAllEntries(repository),
+            getHistoryByDayUseCase: GetHistoryByDay(repository),
           )..loadTodayEntries(),
         ),
         ChangeNotifierProvider(
@@ -94,7 +95,7 @@ class CalorieScanApp extends StatelessWidget {
             brightness: Brightness.light,
           ),
           scaffoldBackgroundColor: const Color(0xFFF9F9F7),
-          textTheme: GoogleFonts.interTextTheme(),
+          fontFamily: 'Satoshi',
           appBarTheme: const AppBarTheme(
             backgroundColor: Colors.transparent,
             elevation: 0,

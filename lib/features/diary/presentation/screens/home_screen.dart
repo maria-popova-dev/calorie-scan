@@ -5,6 +5,8 @@ import '../../../settings/presentation/providers/settings_provider.dart';
 import '../../../settings/presentation/screens/settings_screen.dart';
 import '../providers/diary_provider.dart';
 import '../widgets/calorie_ring.dart';
+import 'history_screen.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -71,7 +73,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     final name = settings.userName;
-    final greetingText = name.isEmpty ? _greeting() : '${_greeting()}, $name';
 
     return Scaffold(
       body: SafeArea(
@@ -89,18 +90,21 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          FittedBox(
-                            fit: BoxFit.scaleDown,
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              greetingText,
-                              maxLines: 1,
+                          Text(
+                            _greeting(),
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Colors.grey[500],
+                            ),
+                          ),
+                          if (name.isNotEmpty)
+                            Text(
+                              name,
                               style: const TextStyle(
                                 fontSize: 26,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                          ),
                           const SizedBox(height: 2),
                           Text(
                             _formattedDate(),
@@ -112,18 +116,65 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.settings_outlined),
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => const SettingsScreen()),
-                        );
+                    PopupMenuButton<String>(
+                      offset: const Offset(0, 48),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      itemBuilder: (context) => [
+                        const PopupMenuItem(
+                          value: 'history',
+                          child: Row(
+                            children: [
+                              Icon(LucideIcons.history, size: 18),
+                              SizedBox(width: 12),
+                              Text('History'),
+                            ],
+                          ),
+                        ),
+                        const PopupMenuItem(
+                          value: 'settings',
+                          child: Row(
+                            children: [
+                              Icon(LucideIcons.settings, size: 18),
+                              SizedBox(width: 12),
+                              Text('Settings'),
+                            ],
+                          ),
+                        ),
+                      ],
+                      onSelected: (value) {
+                        if (value == 'history') {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => const HistoryScreen()),
+                          );
+                        } else if (value == 'settings') {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                          );
+                        }
                       },
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF34C759),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: Text(
+                            settings.userName.isNotEmpty ? settings.userName[0].toUpperCase() : '?',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 56),
               CalorieRing(
                 consumed: total.calories,
                 goal: settings.dailyCalorieGoal,
