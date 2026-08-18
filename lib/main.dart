@@ -27,21 +27,33 @@ import 'features/custom_foods/presentation/providers/custom_food_provider.dart';
 import 'features/premium/presentation/providers/premium_provider.dart';
 import 'features/diary/domain/usecases/get_history_by_day.dart';
 
+import 'features/water/data/models/water_entry_model.dart';
+import 'features/water/data/repositories/water_repository_impl.dart';
+import 'features/water/domain/usecases/add_water_entry.dart';
+import 'features/water/domain/usecases/get_today_water_entries.dart';
+import 'features/water/domain/usecases/delete_water_entry.dart';
+import 'features/water/domain/usecases/calculate_water_goal.dart';
+import 'features/water/presentation/providers/water_provider.dart';
+
 void main() async {
   await dotenv.load(fileName: ".env");
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   Hive.registerAdapter(FoodEntryModelAdapter());
   Hive.registerAdapter(CustomFoodModelAdapter());
+  Hive.registerAdapter(WaterEntryModelAdapter());
   final box = await Hive.openBox<FoodEntryModel>('food_entries');
   final customFoodsBox = await Hive.openBox<CustomFoodModel>('custom_foods');
+  final waterBox = await Hive.openBox<WaterEntryModel>('water_entries');
   final settingsBox = await Hive.openBox('settings');
   final repository = DiaryRepositoryImpl(box);
   final customFoodRepository = CustomFoodRepositoryImpl(customFoodsBox);
+  final waterRepository = WaterRepositoryImpl(waterBox);
 
   runApp(CalorieScanApp(
     repository: repository,
     customFoodRepository: customFoodRepository,
+    waterRepository: waterRepository,
     settingsBox: settingsBox,
   ));
 }
@@ -49,12 +61,14 @@ void main() async {
 class CalorieScanApp extends StatelessWidget {
   final DiaryRepositoryImpl repository;
   final CustomFoodRepositoryImpl customFoodRepository;
+  final WaterRepositoryImpl waterRepository;
   final Box settingsBox;
 
   const CalorieScanApp({
     super.key,
     required this.repository,
     required this.customFoodRepository,
+    required this.waterRepository,
     required this.settingsBox,
   });
   @override
@@ -81,6 +95,15 @@ class CalorieScanApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (_) => PremiumProvider(settingsBox),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => WaterProvider(
+            addWaterEntryUseCase: AddWaterEntry(waterRepository),
+            getTodayWaterEntriesUseCase: GetTodayWaterEntries(waterRepository),
+            deleteWaterEntryUseCase: DeleteWaterEntry(waterRepository),
+            calculateWaterGoalUseCase: CalculateWaterGoal(),
+            settingsBox: settingsBox,
+          )..loadTodayEntries(),
         ),
       ],
       child: MaterialApp(
