@@ -35,6 +35,13 @@ import 'features/water/domain/usecases/delete_water_entry.dart';
 import 'features/water/domain/usecases/calculate_water_goal.dart';
 import 'features/water/presentation/providers/water_provider.dart';
 
+import 'features/weight/data/models/weight_entry_model.dart';
+import 'features/weight/data/repositories/weight_repository_impl.dart';
+import 'features/weight/domain/usecases/add_weight_entry.dart';
+import 'features/weight/domain/usecases/get_weight_history.dart';
+import 'features/weight/domain/usecases/delete_weight_entry.dart';
+import 'features/weight/presentation/providers/weight_provider.dart';
+
 void main() async {
   await dotenv.load(fileName: ".env");
   WidgetsFlutterBinding.ensureInitialized();
@@ -42,18 +49,22 @@ void main() async {
   Hive.registerAdapter(FoodEntryModelAdapter());
   Hive.registerAdapter(CustomFoodModelAdapter());
   Hive.registerAdapter(WaterEntryModelAdapter());
+  Hive.registerAdapter(WeightEntryModelAdapter());
   final box = await Hive.openBox<FoodEntryModel>('food_entries');
   final customFoodsBox = await Hive.openBox<CustomFoodModel>('custom_foods');
   final waterBox = await Hive.openBox<WaterEntryModel>('water_entries');
+  final weightBox = await Hive.openBox<WeightEntryModel>('weight_entries');
   final settingsBox = await Hive.openBox('settings');
   final repository = DiaryRepositoryImpl(box);
   final customFoodRepository = CustomFoodRepositoryImpl(customFoodsBox);
   final waterRepository = WaterRepositoryImpl(waterBox);
+  final weightRepository = WeightRepositoryImpl(weightBox);
 
   runApp(CalorieScanApp(
     repository: repository,
     customFoodRepository: customFoodRepository,
     waterRepository: waterRepository,
+    weightRepository: weightRepository,
     settingsBox: settingsBox,
   ));
 }
@@ -62,6 +73,7 @@ class CalorieScanApp extends StatelessWidget {
   final DiaryRepositoryImpl repository;
   final CustomFoodRepositoryImpl customFoodRepository;
   final WaterRepositoryImpl waterRepository;
+  final WeightRepositoryImpl weightRepository;
   final Box settingsBox;
 
   const CalorieScanApp({
@@ -69,6 +81,7 @@ class CalorieScanApp extends StatelessWidget {
     required this.repository,
     required this.customFoodRepository,
     required this.waterRepository,
+    required this.weightRepository,
     required this.settingsBox,
   });
   @override
@@ -104,6 +117,13 @@ class CalorieScanApp extends StatelessWidget {
             calculateWaterGoalUseCase: CalculateWaterGoal(),
             settingsBox: settingsBox,
           )..loadTodayEntries(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => WeightProvider(
+            addWeightEntryUseCase: AddWeightEntry(weightRepository),
+            getWeightHistoryUseCase: GetWeightHistory(weightRepository),
+            deleteWeightEntryUseCase: DeleteWeightEntry(weightRepository),
+          )..loadHistory(),
         ),
       ],
       child: MaterialApp(
