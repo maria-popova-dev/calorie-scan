@@ -5,12 +5,19 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../providers/weight_provider.dart';
 
 class WeightCard extends StatelessWidget {
-  const WeightCard({super.key});
+  final int? daysFilter;
+  const WeightCard({super.key, this.daysFilter});
 
   @override
   Widget build(BuildContext context) {
     final weight = context.watch<WeightProvider>();
-    final history = weight.history;
+    final fullHistory = weight.history;
+    final history = daysFilter == null
+        ? fullHistory
+        : fullHistory.where((e) {
+      final cutoff = DateTime.now().subtract(Duration(days: daysFilter!));
+      return e.timestamp.isAfter(cutoff);
+    }).toList();
     final latest = weight.latest;
 
     double? delta;
