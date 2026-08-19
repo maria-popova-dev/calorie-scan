@@ -7,8 +7,8 @@ import '../providers/diary_provider.dart';
 import '../widgets/calorie_ring.dart';
 import 'history_screen.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import '../../../water/presentation/widgets/water_card.dart';
-import '../../../weight/presentation/widgets/weight_card.dart';
+import '../../../water/presentation/widgets/water_quick_stat.dart';
+import '../../../weight/presentation/widgets/weight_quick_stat.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -193,10 +193,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
-              const WaterCard(),
-              const SizedBox(height: 16),
-              const WeightCard(),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  WaterQuickStat(),
+                  SizedBox(width: 12),
+                  WeightQuickStat(),
+                ],
+              ),
               const SizedBox(height: 24),
               Text(
                 l10n.entriesToday(provider.todayEntries.length),
