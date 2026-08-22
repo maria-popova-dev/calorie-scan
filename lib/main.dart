@@ -42,9 +42,11 @@ import 'features/weight/domain/usecases/get_weight_history.dart';
 import 'features/weight/domain/usecases/delete_weight_entry.dart';
 import 'features/weight/presentation/providers/weight_provider.dart';
 
+import 'package:yandex_mobileads/mobile_ads.dart';
 void main() async {
   await dotenv.load(fileName: ".env");
   WidgetsFlutterBinding.ensureInitialized();
+  await YandexAds.initialize();
   await Hive.initFlutter();
   Hive.registerAdapter(FoodEntryModelAdapter());
   Hive.registerAdapter(CustomFoodModelAdapter());

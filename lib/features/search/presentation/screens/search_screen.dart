@@ -8,6 +8,7 @@ import '../../../diary/presentation/providers/diary_provider.dart';
 import '../../../premium/presentation/providers/premium_provider.dart';
 import '../../../scan/data/services/usda_nutrition_service.dart';
 import '../../../scan/domain/scale_nutrition.dart';
+import '../../../ads/data/services/rewarded_ad_service.dart';
 
 InputDecoration _softFieldDecoration(String label) {
   return InputDecoration(
@@ -465,22 +466,37 @@ class _CreateCustomFoodScreenState extends State<_CreateCustomFoodScreen> {
       Navigator.of(context).popUntil((route) => route.isFirst);
     }
   }
-
   void _showPremiumDialog() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('Custom foods limit reached'),
         content: const Text(
-          'You\'ve reached the free limit of 5 custom foods. Upgrade to Premium for unlimited custom foods and more.',
+          'You\'ve reached the free limit of custom foods. Watch a short ad to unlock full Premium access for 24 hours — unlimited custom foods, full history, and more.',
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => Navigator.of(dialogContext).pop(),
             child: const Text('Not now'),
           ),
+          TextButton(
+            onPressed: () async {
+              Navigator.of(dialogContext).pop();
+              final service = RewardedAdService();
+              await service.loadAndShow(
+                onReward: () {
+                  if (mounted) {
+                    context.read<PremiumProvider>().grantTempPremium(
+                      const Duration(hours: 24),
+                    );
+                  }
+                },
+              );
+            },
+            child: const Text('Watch ad for 24h Premium'),
+          ),
           FilledButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => Navigator.of(dialogContext).pop(),
             child: const Text('Upgrade'),
           ),
         ],

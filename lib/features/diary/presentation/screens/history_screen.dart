@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import '../../../premium/presentation/providers/premium_provider.dart';
+import '../../../ads/presentation/widgets/history_banner_ad.dart';
 import '../../domain/usecases/get_history_by_day.dart';
 import '../providers/diary_provider.dart';
 
@@ -92,6 +93,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           : ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
         children: [
+          if (!premium.isPremium) const HistoryBannerAd(),
           if (!premium.isPremium)
             Container(
               margin: const EdgeInsets.only(bottom: 16),
