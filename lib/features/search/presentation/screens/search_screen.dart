@@ -82,8 +82,6 @@ class _SearchScreenState extends State<SearchScreen> {
       });
     } catch (e) {
       if (!mounted) return;
-      // ignore: avoid_print
-      print('=== Search error: $e ===');
       setState(() {
         _customResults = customFoods;
         _errorMessage = 'Connection error. Showing your custom foods only.';
