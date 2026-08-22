@@ -21,11 +21,45 @@ class UsdaNutritionResult {
 class UsdaNutritionService {
   static const _baseUrl = 'https://api.nal.usda.gov/fdc/v1';
 
-  // Номера нутриентов USDA, которые нам нужны
   static const _caloriesId = 1008;
   static const _proteinId = 1003;
   static const _fatId = 1004;
   static const _carbsId = 1005;
+
+  /// Выполняет GET-запрос с автоматическим повтором при сетевых сбоях.
+  /// Пробует до 3 раз с небольшой паузой между попытками.
+  Future<http.Response> _getWithRetry(Uri uri, {int maxAttempts = 3}) async {
+    Exception? lastError;
+
+    for (var attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        final response = await http.get(uri).timeout(
+          const Duration(seconds: 10),
+        );
+
+        if (response.statusCode == 200) {
+          return response;
+        }
+
+        // Ошибки клиента (400, 401, 403, 404) — не имеет смысла повторять,
+        // проблема не в сети, а в самом запросе
+        if (response.statusCode >= 400 && response.statusCode < 500) {
+          throw Exception('USDA API error: ${response.statusCode}');
+        }
+
+        // Ошибки сервера (500+) — стоит попробовать ещё раз
+        lastError = Exception('USDA API error: ${response.statusCode}');
+      } catch (e) {
+        lastError = e is Exception ? e : Exception(e.toString());
+      }
+
+      if (attempt < maxAttempts) {
+        await Future.delayed(Duration(milliseconds: 500 * attempt));
+      }
+    }
+
+    throw lastError ?? Exception('USDA API request failed');
+  }
 
   Future<UsdaNutritionResult?> searchFood(String query) async {
     final apiKey = dotenv.env['USDA_API_KEY'];
@@ -42,11 +76,7 @@ class UsdaNutritionService {
       },
     );
 
-    final response = await http.get(uri);
-
-    if (response.statusCode != 200) {
-      throw Exception('USDA API error: ${response.statusCode}');
-    }
+    final response = await _getWithRetry(uri);
 
     final data = jsonDecode(response.body) as Map<String, dynamic>;
     final foods = data['foods'] as List<dynamic>?;
@@ -75,6 +105,7 @@ class UsdaNutritionService {
       carbs: findNutrient(_carbsId),
     );
   }
+
   Future<List<UsdaNutritionResult>> searchFoodMultiple(String query) async {
     final apiKey = dotenv.env['USDA_API_KEY'];
     if (apiKey == null || apiKey.isEmpty) {
@@ -90,11 +121,7 @@ class UsdaNutritionService {
       },
     );
 
-    final response = await http.get(uri);
-
-    if (response.statusCode != 200) {
-      throw Exception('USDA API error: ${response.statusCode}');
-    }
+    final response = await _getWithRetry(uri);
 
     final data = jsonDecode(response.body) as Map<String, dynamic>;
     final foods = data['foods'] as List<dynamic>? ?? [];
