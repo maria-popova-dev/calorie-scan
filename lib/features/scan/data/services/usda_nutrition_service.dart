@@ -38,7 +38,7 @@ class UsdaNutritionService {
         'api_key': apiKey,
         'query': query,
         'pageSize': '5',
-        'dataType': 'Foundation,SR Legacy,Survey (FNDDS)',
+        'dataType': 'Foundation,SR Legacy,Survey',
       },
     );
 
@@ -86,7 +86,7 @@ class UsdaNutritionService {
         'api_key': apiKey,
         'query': query,
         'pageSize': '15',
-        'dataType': 'Foundation,SR Legacy,Survey (FNDDS)',
+        'dataType': 'Foundation,SR Legacy,Survey',
       },
     );
 
