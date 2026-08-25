@@ -18,7 +18,6 @@ class _HistoryBannerAdState extends State<HistoryBannerAd> {
 
   BannerAd? _banner;
   StreamSubscription<BannerAdLoadState>? _loadStateSubscription;
-  bool _loaded = false;
   bool _requested = false;
 
   @override
@@ -30,29 +29,21 @@ class _HistoryBannerAdState extends State<HistoryBannerAd> {
     }
   }
 
-  Future<void> _loadBanner() async {
+  void _loadBanner() {
     if (!mounted) return;
     final windowWidth = MediaQuery.of(context).size.width;
     final adSize = BannerAdSize.sticky(width: windowWidth.toInt());
 
-    if (!mounted) return;
     final banner = BannerAd(adSize: adSize);
     _loadStateSubscription = banner.loadStateStream.listen((state) {
       debugPrint('BANNER STATE: $state');
-      if (!mounted) return;
-      if (state is BannerAdLoadStateLoaded) {
-        setState(() => _loaded = true);
-      } else if (state is BannerAdLoadStateError) {
-        setState(() => _loaded = false);
+      if (state is BannerAdLoadStateError) {
         debugPrint('BANNER ERROR: ${state.error.code} - ${state.error.description}');
       }
     });
 
-    if (!mounted) {
-      banner.destroy();
-      return;
-    }
-
+    // Показываем AdWidget сразу, не дожидаясь Loaded — иначе баннер
+    // физически не может начать грузиться (нужен platform view из AdWidget).
     setState(() => _banner = banner);
     banner.load(AdRequest(adUnitId: _adUnitId));
   }
@@ -69,11 +60,12 @@ class _HistoryBannerAdState extends State<HistoryBannerAd> {
 
   @override
   Widget build(BuildContext context) {
-    if (_banner == null || !_loaded) return const SizedBox.shrink();
+    final banner = _banner;
+    if (banner == null) return const SizedBox.shrink();
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       alignment: Alignment.center,
-      child: AdWidget(bannerAd: _banner!),
+      child: AdWidget(bannerAd: banner),
     );
   }
 }
