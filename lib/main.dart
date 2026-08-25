@@ -45,6 +45,7 @@ import 'features/weight/presentation/providers/weight_provider.dart';
 
 import 'package:yandex_mobileads/mobile_ads.dart';
 import 'features/diary/domain/usecases/get_recent_entries.dart';
+import 'features/diary/domain/usecases/copy_previous_day.dart';
 
 void main() async {
   await dotenv.load(fileName: ".env");
@@ -104,6 +105,7 @@ class CalorieScanApp extends StatelessWidget {
             deleteAllEntriesUseCase: DeleteAllEntries(repository),
             getHistoryByDayUseCase: GetHistoryByDay(repository),
             getRecentEntriesUseCase: GetRecentEntries(repository),
+            copyPreviousDayUseCase: CopyPreviousDay(repository),
           )..loadTodayEntries(),
         ),
         ChangeNotifierProvider(

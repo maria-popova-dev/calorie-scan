@@ -5,15 +5,22 @@ import '../../domain/entities/food_entry.dart';
 import '../providers/diary_provider.dart';
 import 'edit_entry_screen.dart';
 
-class DiaryScreen extends StatelessWidget {
+class DiaryScreen extends StatefulWidget {
   const DiaryScreen({super.key});
 
+  @override
+  State<DiaryScreen> createState() => _DiaryScreenState();
+}
+
+class _DiaryScreenState extends State<DiaryScreen> {
   static const _mealOrder = [
     MealType.breakfast,
     MealType.lunch,
     MealType.dinner,
     MealType.snack,
   ];
+
+  bool _isCopying = false;
 
   String _mealLabel(MealType type) {
     switch (type) {
@@ -41,6 +48,24 @@ class DiaryScreen extends StatelessWidget {
     }
   }
 
+  Future<void> _copyYesterday() async {
+    setState(() => _isCopying = true);
+    final count = await context.read<DiaryProvider>().copyPreviousDay();
+    if (!mounted) return;
+    setState(() => _isCopying = false);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          count > 0 ? 'Copied $count items from yesterday' : 'No entries found for yesterday',
+        ),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        margin: const EdgeInsets.fromLTRB(20, 0, 20, 100),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -51,15 +76,31 @@ class DiaryScreen extends StatelessWidget {
       return Scaffold(
         appBar: AppBar(title: Text(l10n.diaryTitle)),
         body: Center(
-          child: Text(
-            l10n.noEntriesToday,
-            style: TextStyle(color: Colors.grey[500]),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                l10n.noEntriesToday,
+                style: TextStyle(color: Colors.grey[500]),
+              ),
+              const SizedBox(height: 16),
+              TextButton.icon(
+                onPressed: _isCopying ? null : _copyYesterday,
+                icon: _isCopying
+                    ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+                    : const Icon(Icons.replay),
+                label: const Text('Copy yesterday\'s meals'),
+              ),
+            ],
           ),
         ),
       );
     }
 
-    // Группируем записи по типу приёма пищи
     final Map<MealType, List<FoodEntry>> grouped = {};
     for (final entry in entries) {
       grouped.putIfAbsent(entry.mealType, () => []).add(entry);

@@ -10,6 +10,7 @@ import '../../domain/usecases/update_food_entry.dart';
 import '../../domain/usecases/delete_all_entries.dart';
 import '../../domain/usecases/get_history_by_day.dart';
 import '../../domain/usecases/get_recent_entries.dart';
+import '../../domain/usecases/copy_previous_day.dart';
 
 class DiaryProvider extends ChangeNotifier {
   final AddFoodEntry addFoodEntryUseCase;
@@ -21,6 +22,7 @@ class DiaryProvider extends ChangeNotifier {
   final DeleteAllEntries deleteAllEntriesUseCase;
   final GetHistoryByDay getHistoryByDayUseCase;
   final GetRecentEntries getRecentEntriesUseCase;
+  final CopyPreviousDay copyPreviousDayUseCase;
 
   DiaryProvider({
     required this.addFoodEntryUseCase,
@@ -32,6 +34,7 @@ class DiaryProvider extends ChangeNotifier {
     required this.deleteAllEntriesUseCase,
     required this.getHistoryByDayUseCase,
     required this.getRecentEntriesUseCase,
+    required this.copyPreviousDayUseCase,
   });
 
   List<FoodEntry> _todayEntries = [];
@@ -104,5 +107,12 @@ class DiaryProvider extends ChangeNotifier {
   }
   Future<List<FoodEntry>> getRecentEntries() {
     return getRecentEntriesUseCase();
+  }
+  Future<int> copyPreviousDay() async {
+    final count = await copyPreviousDayUseCase();
+    if (count > 0) {
+      await loadTodayEntries();
+    }
+    return count;
   }
 }
