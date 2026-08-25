@@ -14,6 +14,16 @@ class SettingsProvider extends ChangeNotifier {
   static const _defaultGoal = 2000.0;
   static const _nameKey = 'user_name';
 
+  static const _onboardingCompleteKey = 'onboarding_complete';
+
+  bool get hasCompletedOnboarding =>
+      (settingsBox.get(_onboardingCompleteKey) as bool?) ?? false;
+
+  Future<void> setOnboardingComplete() async {
+    await settingsBox.put(_onboardingCompleteKey, true);
+    notifyListeners();
+  }
+
   static const _genderKey = 'gender';
   static const _ageKey = 'age';
   static const _heightKey = 'height_cm';

@@ -26,6 +26,7 @@ import 'features/custom_foods/data/repositories/custom_food_repository_impl.dart
 import 'features/custom_foods/presentation/providers/custom_food_provider.dart';
 import 'features/premium/presentation/providers/premium_provider.dart';
 import 'features/diary/domain/usecases/get_history_by_day.dart';
+import 'features/settings/presentation/screens/onboarding_screen.dart';
 
 import 'features/water/data/models/water_entry_model.dart';
 import 'features/water/data/repositories/water_repository_impl.dart';
@@ -148,9 +149,29 @@ class CalorieScanApp extends StatelessWidget {
             foregroundColor: Colors.black,
           ),
         ),
-        home: const RootScreen(),
+        home: const _AppRoot(),
       ),
     );
+  }
+}
+
+class _AppRoot extends StatelessWidget {
+  const _AppRoot();
+
+  @override
+  Widget build(BuildContext context) {
+    final settings = context.watch<SettingsProvider>();
+
+    if (!settings.hasCompletedOnboarding) {
+      return OnboardingScreen(
+        onComplete: () {
+          // Экран сам пересоберётся, когда settings.hasCompletedOnboarding
+          // станет true — Provider уведомит об изменении.
+        },
+      );
+    }
+
+    return const RootScreen();
   }
 }
 
