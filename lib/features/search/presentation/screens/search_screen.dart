@@ -54,8 +54,22 @@ class _SearchScreenState extends State<SearchScreen> {
 
   List<UsdaNutritionResult> _results = [];
   List<CustomFood> _customResults = [];
+  List<FoodEntry> _recentEntries = [];
   bool _isSearching = false;
   String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRecent();
+  }
+
+  Future<void> _loadRecent() async {
+    final recent = await context.read<DiaryProvider>().getRecentEntries();
+    if (mounted) {
+      setState(() => _recentEntries = recent);
+    }
+  }
 
   Future<void> _search() async {
     final query = _queryController.text.trim();
@@ -106,6 +120,21 @@ class _SearchScreenState extends State<SearchScreen> {
       fat: food.fat,
       carbs: food.carbs,
       source: FoodEntrySource.manual,
+    );
+
+    if (mounted) {
+      Navigator.of(context).pop();
+    }
+  }
+
+  Future<void> _reAddRecentEntry(FoodEntry entry) async {
+    await context.read<DiaryProvider>().addEntry(
+      name: entry.name,
+      calories: entry.calories,
+      protein: entry.protein,
+      fat: entry.fat,
+      carbs: entry.carbs,
+      source: entry.source,
     );
 
     if (mounted) {
@@ -166,30 +195,47 @@ class _SearchScreenState extends State<SearchScreen> {
                 style: TextStyle(color: Colors.grey[600], fontSize: 13),
               ),
             ),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
-              children: [
-                if (_customResults.isNotEmpty) ...[
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Text(
-                      'Your foods',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: const Color(0xFF34C759),
-                        fontSize: 13,
-                      ),
-                    ),
-                  ),
-                  ..._customResults.map((food) => _FoodCard(
-                    icon: Icons.star,
-                    iconColor: const Color(0xFF34C759),
-                    title: food.name,
-                    subtitle: '${food.calories.toStringAsFixed(0)} kcal',
-                    onTap: () => _reAddCustomFood(food),
-                  )),
-                  const SizedBox(height: 16),
+    Expanded(
+    child: ListView(
+    padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+    children: [
+    if (_queryController.text.isEmpty && _recentEntries.isNotEmpty) ...[
+    Padding(
+    padding: const EdgeInsets.only(bottom: 8),
+    child: Text(
+    'Recent',
+    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey[600], fontSize: 13),
+    ),
+    ),
+    ..._recentEntries.map((entry) => _FoodCard(
+    icon: Icons.history,
+    iconColor: Colors.grey[400]!,
+    title: entry.name,
+    subtitle: '${entry.calories.toStringAsFixed(0)} kcal',
+    onTap: () => _reAddRecentEntry(entry),
+    )),
+    const SizedBox(height: 16),
+    ],
+    if (_customResults.isNotEmpty) ...[
+    Padding(
+    padding: const EdgeInsets.only(bottom: 8),
+    child: Text(
+    'Your foods',
+    style: TextStyle(
+    fontWeight: FontWeight.bold,
+    color: const Color(0xFF34C759),
+    fontSize: 13,
+    ),
+    ),
+    ),
+    ..._customResults.map((food) => _FoodCard(
+    icon: Icons.star,
+    iconColor: const Color(0xFF34C759),
+    title: food.name,
+    subtitle: '${food.calories.toStringAsFixed(0)} kcal',
+    onTap: () => _reAddCustomFood(food),
+    )),
+    const SizedBox(height: 16),
                 ],
                 if (_results.isNotEmpty) ...[
                   Padding(

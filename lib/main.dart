@@ -44,6 +44,8 @@ import 'features/weight/domain/usecases/delete_weight_entry.dart';
 import 'features/weight/presentation/providers/weight_provider.dart';
 
 import 'package:yandex_mobileads/mobile_ads.dart';
+import 'features/diary/domain/usecases/get_recent_entries.dart';
+
 void main() async {
   await dotenv.load(fileName: ".env");
   WidgetsFlutterBinding.ensureInitialized();
@@ -101,6 +103,7 @@ class CalorieScanApp extends StatelessWidget {
             updateFoodEntryUseCase: UpdateFoodEntry(repository),
             deleteAllEntriesUseCase: DeleteAllEntries(repository),
             getHistoryByDayUseCase: GetHistoryByDay(repository),
+            getRecentEntriesUseCase: GetRecentEntries(repository),
           )..loadTodayEntries(),
         ),
         ChangeNotifierProvider(
