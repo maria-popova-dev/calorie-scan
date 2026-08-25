@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
+import 'features/barcode/presentation/screens/barcode_scan_screen.dart';
 import 'features/diary/data/models/food_entry_model.dart';
 import 'features/diary/data/repositories/diary_repository_impl.dart';
 import 'features/diary/domain/usecases/add_food_entry.dart';
@@ -226,6 +227,11 @@ class _RootScreenState extends State<RootScreen> {
               leading: const Icon(LucideIcons.scanLine),
               title: const Text('Scan label'),
               onTap: () => _openScan(const OcrScanScreen()),
+            ),
+            ListTile(
+              leading: const Icon(Icons.qr_code_scanner),
+              title: const Text('Scan barcode'),
+              onTap: () => _openScan(const BarcodeScanScreen()),
             ),
           ],
         ),
