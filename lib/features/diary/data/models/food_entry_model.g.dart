@@ -25,13 +25,14 @@ class FoodEntryModelAdapter extends TypeAdapter<FoodEntryModel> {
       carbs: fields[5] as double,
       timestamp: fields[6] as DateTime,
       sourceIndex: fields[7] as int,
+      mealTypeIndex: fields[8] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, FoodEntryModel obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(9)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -47,7 +48,9 @@ class FoodEntryModelAdapter extends TypeAdapter<FoodEntryModel> {
       ..writeByte(6)
       ..write(obj.timestamp)
       ..writeByte(7)
-      ..write(obj.sourceIndex);
+      ..write(obj.sourceIndex)
+      ..writeByte(8)
+      ..write(obj.mealTypeIndex);
   }
 
   @override

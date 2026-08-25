@@ -52,6 +52,7 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
       carbs: double.parse(_carbsController.text),
       timestamp: widget.entry.timestamp,
       source: widget.entry.source,
+      mealType: widget.entry.mealType,
     );
 
     await context.read<DiaryProvider>().updateEntry(updatedEntry);

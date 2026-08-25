@@ -29,6 +29,9 @@ class FoodEntryModel extends HiveObject {
   @HiveField(7)
   final int sourceIndex;
 
+  @HiveField(8)
+  final int mealTypeIndex;
+
   FoodEntryModel({
     required this.id,
     required this.name,
@@ -38,6 +41,7 @@ class FoodEntryModel extends HiveObject {
     required this.carbs,
     required this.timestamp,
     required this.sourceIndex,
+    required this.mealTypeIndex,
   });
 
   factory FoodEntryModel.fromEntity(FoodEntry entity) {
@@ -50,6 +54,7 @@ class FoodEntryModel extends HiveObject {
       carbs: entity.carbs,
       timestamp: entity.timestamp,
       sourceIndex: entity.source.index,
+      mealTypeIndex: entity.mealType.index,
     );
   }
 
@@ -63,6 +68,7 @@ class FoodEntryModel extends HiveObject {
       carbs: carbs,
       timestamp: timestamp,
       source: FoodEntrySource.values[sourceIndex],
+      mealType: MealType.values[mealTypeIndex],
     );
   }
 }

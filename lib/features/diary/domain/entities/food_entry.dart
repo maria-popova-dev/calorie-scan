@@ -7,6 +7,7 @@ class FoodEntry {
   final double carbs;
   final DateTime timestamp;
   final FoodEntrySource source;
+  final MealType mealType;
 
   const FoodEntry({
     required this.id,
@@ -17,6 +18,7 @@ class FoodEntry {
     required this.carbs,
     required this.timestamp,
     required this.source,
+    required this.mealType,
   });
 }
 
@@ -24,4 +26,11 @@ enum FoodEntrySource {
   manual,
   ocrLabel,
   photoRecognition,
+}
+
+enum MealType {
+  breakfast,
+  lunch,
+  dinner,
+  snack,
 }

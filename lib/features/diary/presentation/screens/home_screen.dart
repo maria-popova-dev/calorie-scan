@@ -187,9 +187,21 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _MacroStat(label: l10n.proteinLabel, value: total.protein),
-                    _MacroStat(label: l10n.fatLabel, value: total.fat),
-                    _MacroStat(label: l10n.carbsLabel, value: total.carbs),
+                    _MacroStat(
+                      label: l10n.proteinLabel,
+                      value: total.protein,
+                      goal: settings.proteinGoalGrams,
+                    ),
+                    _MacroStat(
+                      label: l10n.fatLabel,
+                      value: total.fat,
+                      goal: settings.fatGoalGrams,
+                    ),
+                    _MacroStat(
+                      label: l10n.carbsLabel,
+                      value: total.carbs,
+                      goal: settings.carbsGoalGrams,
+                    ),
                   ],
                 ),
               ),
@@ -219,21 +231,41 @@ class _HomeScreenState extends State<HomeScreen> {
 class _MacroStat extends StatelessWidget {
   final String label;
   final double value;
+  final double goal;
 
-  const _MacroStat({required this.label, required this.value});
+  const _MacroStat({
+    required this.label,
+    required this.value,
+    required this.goal,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final progress = goal > 0 ? (value / goal).clamp(0.0, 1.0) : 0.0;
+
     return Column(
       children: [
         Text(
-          value.toStringAsFixed(0),
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+          '${value.toStringAsFixed(0)}/${goal.toStringAsFixed(0)}',
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 2),
         Text(
           label,
           style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+        ),
+        const SizedBox(height: 6),
+        SizedBox(
+          width: 60,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 4,
+              backgroundColor: const Color(0xFFEDEDE8),
+              valueColor: const AlwaysStoppedAnimation(Color(0xFF34C759)),
+            ),
+          ),
         ),
       ],
     );

@@ -56,6 +56,7 @@ class DiaryProvider extends ChangeNotifier {
     required double fat,
     required double carbs,
     required FoodEntrySource source,
+    MealType? mealType,
   }) async {
     final entry = FoodEntry(
       id: const Uuid().v4(),
@@ -66,10 +67,19 @@ class DiaryProvider extends ChangeNotifier {
       carbs: carbs,
       timestamp: DateTime.now(),
       source: source,
+      mealType: mealType ?? _suggestMealTypeByTime(),
     );
 
     await addFoodEntryUseCase(entry);
     await loadTodayEntries();
+  }
+
+  MealType _suggestMealTypeByTime() {
+    final hour = DateTime.now().hour;
+    if (hour < 11) return MealType.breakfast;
+    if (hour < 16) return MealType.lunch;
+    if (hour < 21) return MealType.dinner;
+    return MealType.snack;
   }
   Future<List<FoodEntry>> searchCustomFoods(String query) {
     return getCustomFoodsUseCase(query);

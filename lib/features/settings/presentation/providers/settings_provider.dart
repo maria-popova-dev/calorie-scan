@@ -31,6 +31,12 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Целевое распределение БЖУ: 30% белки, 30% жиры, 40% углеводы.
+  // Белки и углеводы — 4 ккал/г, жиры — 9 ккал/г.
+  double get proteinGoalGrams => (dailyCalorieGoal * 0.30) / 4;
+  double get fatGoalGrams => (dailyCalorieGoal * 0.30) / 9;
+  double get carbsGoalGrams => (dailyCalorieGoal * 0.40) / 4;
+
   String get userName => (settingsBox.get(_nameKey) as String?) ?? '';
 
   Future<void> setUserName(String name) async {
