@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../diary/presentation/providers/diary_provider.dart';
+import '../../../notifications/data/services/notification_service.dart';
 import '../providers/settings_provider.dart';
 import 'calorie_calculator_screen.dart';
 
@@ -42,6 +43,74 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     if (mounted) {
       Navigator.of(context).pop();
+    }
+  }
+
+  Future<void> _toggleMealReminder(SettingsProvider settings, bool enabled) async {
+    await settings.setMealReminder(enabled: enabled);
+    final notifications = NotificationService();
+    if (enabled) {
+      await notifications.requestPermissions();
+      await notifications.scheduleDailyReminder(
+        id: 1,
+        hour: settings.mealReminderHour,
+        minute: 0,
+        title: 'Time to log your meal',
+        body: 'Don\'t forget to track what you ate today',
+      );
+    } else {
+      await notifications.cancelReminder(1);
+    }
+  }
+
+  Future<void> _toggleWaterReminder(SettingsProvider settings, bool enabled) async {
+    await settings.setWaterReminder(enabled: enabled);
+    final notifications = NotificationService();
+    if (enabled) {
+      await notifications.requestPermissions();
+      await notifications.scheduleDailyReminder(
+        id: 2,
+        hour: settings.waterReminderHour,
+        minute: 0,
+        title: 'Stay hydrated!',
+        body: 'Time to log your water intake',
+      );
+    } else {
+      await notifications.cancelReminder(2);
+    }
+  }
+
+  Future<void> _pickMealReminderTime(SettingsProvider settings) async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(hour: settings.mealReminderHour, minute: 0),
+    );
+    if (picked != null) {
+      await settings.setMealReminder(enabled: true, hour: picked.hour);
+      await NotificationService().scheduleDailyReminder(
+        id: 1,
+        hour: picked.hour,
+        minute: 0,
+        title: 'Time to log your meal',
+        body: 'Don\'t forget to track what you ate today',
+      );
+    }
+  }
+
+  Future<void> _pickWaterReminderTime(SettingsProvider settings) async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(hour: settings.waterReminderHour, minute: 0),
+    );
+    if (picked != null) {
+      await settings.setWaterReminder(enabled: true, hour: picked.hour);
+      await NotificationService().scheduleDailyReminder(
+        id: 2,
+        hour: picked.hour,
+        minute: 0,
+        title: 'Stay hydrated!',
+        body: 'Time to log your water intake',
+      );
     }
   }
 
@@ -109,7 +178,58 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: const Text('Save'),
             ),
           ),
-          const SizedBox(height: 40),
+          const SizedBox(height: 32),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Reminders', style: TextStyle(fontWeight: FontWeight.w600)),
+                const SizedBox(height: 12),
+                Consumer<SettingsProvider>(
+                  builder: (context, settings, _) => SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('Meal reminder', style: TextStyle(fontSize: 14)),
+                    subtitle: GestureDetector(
+                      onTap: settings.mealReminderEnabled
+                          ? () => _pickMealReminderTime(settings)
+                          : null,
+                      child: Text(
+                        'Daily at ${settings.mealReminderHour.toString().padLeft(2, '0')}:00 ${settings.mealReminderEnabled ? '(tap to change)' : ''}',
+                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                      ),
+                    ),
+                    value: settings.mealReminderEnabled,
+                    activeThumbColor: const Color(0xFF34C759),
+                    onChanged: (value) => _toggleMealReminder(settings, value),
+                  ),
+                ),
+                Consumer<SettingsProvider>(
+                  builder: (context, settings, _) => SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('Water reminder', style: TextStyle(fontSize: 14)),
+                    subtitle: GestureDetector(
+                      onTap: settings.waterReminderEnabled
+                          ? () => _pickWaterReminderTime(settings)
+                          : null,
+                      child: Text(
+                        'Daily at ${settings.waterReminderHour.toString().padLeft(2, '0')}:00 ${settings.waterReminderEnabled ? '(tap to change)' : ''}',
+                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                      ),
+                    ),
+                    value: settings.waterReminderEnabled,
+                    activeThumbColor: const Color(0xFF34C759),
+                    onChanged: (value) => _toggleWaterReminder(settings, value),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(

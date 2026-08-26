@@ -30,6 +30,34 @@ class SettingsProvider extends ChangeNotifier {
   static const _weightKey = 'weight_kg';
   static const _activityKey = 'activity_level';
   static const _weightGoalKey = 'weight_goal';
+  static const _mealReminderEnabledKey = 'meal_reminder_enabled';
+  static const _mealReminderHourKey = 'meal_reminder_hour';
+  static const _waterReminderEnabledKey = 'water_reminder_enabled';
+  static const _waterReminderHourKey = 'water_reminder_hour';
+
+  bool get mealReminderEnabled =>
+      (settingsBox.get(_mealReminderEnabledKey) as bool?) ?? false;
+
+  int get mealReminderHour =>
+      (settingsBox.get(_mealReminderHourKey) as int?) ?? 19;
+
+  bool get waterReminderEnabled =>
+      (settingsBox.get(_waterReminderEnabledKey) as bool?) ?? false;
+
+  int get waterReminderHour =>
+      (settingsBox.get(_waterReminderHourKey) as int?) ?? 14;
+
+  Future<void> setMealReminder({required bool enabled, int? hour}) async {
+    await settingsBox.put(_mealReminderEnabledKey, enabled);
+    if (hour != null) await settingsBox.put(_mealReminderHourKey, hour);
+    notifyListeners();
+  }
+
+  Future<void> setWaterReminder({required bool enabled, int? hour}) async {
+    await settingsBox.put(_waterReminderEnabledKey, enabled);
+    if (hour != null) await settingsBox.put(_waterReminderHourKey, hour);
+    notifyListeners();
+  }
 
   SettingsProvider(this.settingsBox);
 
