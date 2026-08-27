@@ -48,12 +48,13 @@ import 'package:yandex_mobileads/mobile_ads.dart';
 import 'features/diary/domain/usecases/get_recent_entries.dart';
 import 'features/diary/domain/usecases/copy_previous_day.dart';
 import 'features/notifications/data/services/notification_service.dart';
-
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 void main() async {
   await dotenv.load(fileName: ".env");
   WidgetsFlutterBinding.ensureInitialized();
   await NotificationService().initialize();
+  await MobileAds.instance.initialize();
   await YandexAds.initialize();
   await Hive.initFlutter();
   Hive.registerAdapter(FoodEntryModelAdapter());
